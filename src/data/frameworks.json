@@ -1,0 +1,124 @@
+{
+  "product_design": [
+    {
+      "id": "user-centered-design",
+      "name": "User-Centered Design Framework",
+      "description": "Focus on understanding user needs, pain points, and behaviors throughout the design process.",
+      "key_points": [
+        "Start with user research and empathy mapping",
+        "Define clear user personas and their goals",
+        "Create user journey maps to identify opportunities",
+        "Iterate based on user feedback and testing"
+      ],
+      "priority": 1
+    },
+    {
+      "id": "circles-method",
+      "name": "CIRCLES Method",
+      "description": "A structured approach for product design questions covering all key aspects.",
+      "key_points": [
+        "Comprehend the situation and constraints",
+        "Identify the customer and their needs",
+        "Report customer needs and pain points",
+        "Cut through prioritization of features",
+        "List solutions and evaluate trade-offs",
+        "Evaluate and summarize your recommendation",
+        "Summarize your recommendation clearly"
+      ],
+      "priority": 2
+    }
+  ],
+  
+  "product_strategy": [
+    {
+      "id": "value-based-pricing",
+      "name": "Value-Based Pricing Framework",
+      "description": "Price based on the value delivered to customers rather than cost-plus or competitor-based pricing.",
+      "key_points": [
+        "Quantify the ROI your product delivers",
+        "Segment customers by willingness to pay",
+        "Create pricing tiers aligned with value metrics",
+        "Use value conversations in sales process"
+      ],
+      "applicable_domains": ["productivity", "fintech", "marketplace"],
+      "priority": 1
+    }
+  ],
+  
+  "metrics": [
+    {
+      "id": "data-driven-framework",
+      "name": "Data-Driven Decision Framework",
+      "description": "Systematic approach to analyze data and derive insights for informed product decisions.",
+      "key_points": [
+        "Define clear metrics and KPIs",
+        "Establish baseline measurements",
+        "Identify trends and patterns",
+        "Validate hypotheses with A/B testing"
+      ],
+      "priority": 1
+    }
+  ],
+  
+  "behavioral": [
+    {
+      "id": "star-method",
+      "name": "STAR Method Framework",
+      "description": "Structure behavioral interview responses effectively to showcase your experience clearly.",
+      "key_points": [
+        "Situation: Set the context clearly",
+        "Task: Define your responsibility",
+        "Action: Describe specific actions taken",
+        "Result: Quantify outcomes"
+      ],
+      "priority": 1
+    }
+  ],
+  
+  "guestimation": [
+    {
+      "id": "fermi-estimation",
+      "name": "Fermi Estimation Framework",
+      "description": "Break down complex estimations into manageable components for systematic problem-solving.",
+      "key_points": [
+        "Break problem into smaller components",
+        "Make reasonable assumptions",
+        "Validate with sanity checks",
+        "Provide confidence ranges"
+      ],
+      "priority": 1
+    }
+  ],
+  
+  "problem_solving": [
+    {
+      "id": "structured-problem-solving",
+      "name": "Structured Problem Solving Framework",
+      "description": "Systematic approach to complex problem analysis to ensure comprehensive solutions.",
+      "key_points": [
+        "Clarify the problem statement and scope",
+        "Identify root causes using 5 Whys or fishbone",
+        "Generate multiple solution alternatives",
+        "Evaluate options using decision matrix",
+        "Implement with clear success metrics"
+      ],
+      "priority": 1
+    }
+  ],
+  
+  "product_improvement": [
+    {
+      "id": "product-improvement-cycle",
+      "name": "Product Improvement Framework",
+      "description": "Iterative approach to enhancing existing products through systematic identification and prioritization.",
+      "key_points": [
+        "Identify pain points and improvement opportunities",
+        "Prioritize based on user impact and effort",
+        "Design minimal viable improvements",
+        "Measure impact against baseline metrics",
+        "Iterate based on user feedback and data"
+      ],
+      "priority": 1
+    }
+  ]
+}
