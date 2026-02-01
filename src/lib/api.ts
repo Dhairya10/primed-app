@@ -1,41 +1,29 @@
 import {
-  type Problem,
   type PaginatedResponse,
   type SingleResponse,
-  type ProblemsMetadata,
-  type InterviewsMetadata,
-  type InterviewSessionCreate,
-  type InterviewSession,
-  type DomainType,
   type ProblemType,
   type DisciplineType,
-  type DashboardResponse,
   type FeedbackDetailResponse,
+  type SkillFeedback,
   type UserProfileRequest,
   type UserProfileResponse,
   type UserProfileUpdateResponse,
   type ProfileScreenResponse,
   type Drill,
-  type SearchResult,
   type LibraryMetadata,
   type HomeScreenRecommendation,
+  type GreetingResponse,
+  type DrillHomeResponse,
+  type DrillResponse,
   type UserSkillsResponse,
+  type SkillMapResponse,
+  type SkillHistoryResponse,
   type SkillDetailResponse,
   type CheckDrillEligibilityResponse,
   type DrillSessionStartResponse,
 } from '@/types/api';
-import type {
-  SessionStartResponse,
-  AbandonResponse,
-  CheckEligibilityResponse,
-} from '@/types/interview';
 import { API_BASE_URL, DEFAULT_USER_ID, IS_API_ENABLED, IS_AUTH_ENABLED } from './constants';
-import {
-  filterDummyProblems,
-  DUMMY_METADATA,
-  getDummyDashboard,
-  getDummyFeedbackDetail,
-} from './dummy-data';
+import { getDummyFeedbackDetail } from './dummy-data';
 import { getAuthHeaders } from './auth-store';
 
 class ApiError extends Error {
@@ -48,6 +36,18 @@ class ApiError extends Error {
     super(message);
     this.name = 'ApiError';
   }
+}
+
+interface SessionFeedbackResponse {
+  data: {
+    session_id: string;
+    drill_title: string;
+    completed_at?: string | null;
+    feedback?: {
+      summary: string;
+      skills: SkillFeedback[];
+    } | null;
+  };
 }
 
 async function fetchApi<T>(
@@ -99,267 +99,6 @@ export function getVoiceAgentWebSocketUrl(sessionId: string, token?: string): st
   return `${wsUrl}/api/v1/ws/drill/${sessionId}${query}`;
 }
 
-// Get all interviews with attempt status (authenticated endpoint)
-export async function getInterviews(
-  params: { limit?: number; offset?: number } = {}
-): Promise<PaginatedResponse<import('@/types/api').Interview>> {
-  // Use dummy data when API is disabled
-  if (!IS_API_ENABLED) {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    // Convert dummy problems to interviews format
-    const dummyData = filterDummyProblems({});
-    return {
-      ...dummyData,
-      data: dummyData.data.map(p => ({
-        id: p.id,
-        title: p.title,
-        discipline: 'product' as DisciplineType,
-        product_logo_url: p.product_logo_url ?? null,
-        description: p.description,
-        estimated_duration_minutes: p.estimated_duration_minutes ?? 45,
-        is_attempted: p.is_attempted ?? false,
-        last_attempted_at: p.last_attempted_at ?? null,
-      })),
-    };
-  }
-
-  const searchParams = new URLSearchParams();
-  if (params.limit) searchParams.set('limit', params.limit.toString());
-  if (params.offset) searchParams.set('offset', params.offset.toString());
-
-  const query = searchParams.toString();
-  return fetchApi(`/api/v1/interviews${query ? `?${query}` : ''}`);
-}
-
-// Legacy function - kept for backward compatibility
-// @deprecated Use getInterviews() or searchInterviews() instead
-export interface GetProblemsParams {
-  search?: string;
-  domain?: DomainType;
-  problem_type?: ProblemType;
-  limit?: number;
-  offset?: number;
-  user_id?: string;
-}
-
-export async function getProblems(
-  params: GetProblemsParams = {}
-): Promise<PaginatedResponse<Problem>> {
-  // Use dummy data when API is disabled
-  if (!IS_API_ENABLED) {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    return filterDummyProblems(params);
-  }
-
-  // For now, convert to use search if search query is provided
-  if (params.search) {
-    return searchInterviews({
-      query: params.search,
-      limit: params.limit,
-      offset: params.offset,
-    }) as any; // Type compatibility shim
-  }
-
-  // Otherwise use getInterviews
-  return getInterviews({
-    limit: params.limit,
-    offset: params.offset
-  }) as any; // Type compatibility shim
-}
-
-// Legacy function - kept for backward compatibility
-// @deprecated Use getInterviewsMetadata() instead
-export async function getProblemsMetadata(): Promise<ProblemsMetadata> {
-  // Use dummy data when API is disabled
-  if (!IS_API_ENABLED) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    return DUMMY_METADATA;
-  }
-
-  // Return empty metadata since the interviews API doesn't filter by domain/problem_type
-  return {
-    domains: [],
-    problem_types: [],
-  };
-}
-
-export async function getInterviewsMetadata(): Promise<InterviewsMetadata> {
-  // Use dummy data when API is disabled
-  if (!IS_API_ENABLED) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    return {
-      disciplines: ['product', 'design', 'engineering', 'marketing'] as DisciplineType[],
-    };
-  }
-
-  const response = await fetchApi<{ data: InterviewsMetadata }>(
-    '/api/v1/interviews/metadata'
-  );
-  return response.data;
-}
-
-export interface SearchInterviewsParams {
-  query: string;
-  limit?: number;
-  offset?: number;
-}
-
-export async function searchInterviews(
-  params: SearchInterviewsParams
-): Promise<PaginatedResponse<SearchResult>> {
-  // Use dummy data when API is disabled
-  if (!IS_API_ENABLED) {
-    await new Promise((resolve) => setTimeout(resolve, 400));
-    // Filter dummy problems by search query
-    const filtered = filterDummyProblems({ search: params.query, limit: params.limit, offset: params.offset });
-
-    // Convert Problem to SearchResult with 'interview' type
-    const interviewResults: SearchResult[] = filtered.data.map(p => ({
-      type: 'interview' as const,
-      id: p.id,
-      title: p.title,
-      discipline: 'product' as DisciplineType,
-      product_logo_url: p.product_logo_url ?? null,
-      description: p.description,
-      estimated_duration_minutes: p.estimated_duration_minutes ?? 45,
-    }));
-
-    // Add dummy drills that match the search query
-    const allDrills: SearchResult[] = [
-      {
-        type: 'drill' as const,
-        id: 'drill-1',
-        title: 'Design a Health Tracking Feature',
-        display_title: 'Design a Health Tracking Feature',
-        discipline: 'product' as DisciplineType,
-        problem_type: 'product_design' as ProblemType,
-      },
-      {
-        type: 'drill' as const,
-        id: 'drill-2',
-        title: 'Improve User Engagement Metrics',
-        display_title: 'Improve User Engagement Metrics',
-        discipline: 'product' as DisciplineType,
-        problem_type: 'metrics' as ProblemType,
-      },
-      {
-        type: 'drill' as const,
-        id: 'drill-4',
-        title: 'Prioritize Feature Roadmap',
-        display_title: 'Prioritize Feature Roadmap',
-        discipline: 'product' as DisciplineType,
-        problem_type: 'product_strategy' as ProblemType,
-      },
-      {
-        type: 'drill' as const,
-        id: 'drill-27',
-        title: 'Improve Instagram Stories',
-        display_title: 'Improve Instagram Stories',
-        discipline: 'product' as DisciplineType,
-        problem_type: 'product_improvement' as ProblemType,
-      },
-      {
-        type: 'drill' as const,
-        id: 'drill-5',
-        title: 'Solve Payment Flow Issue',
-        display_title: 'Solve Payment Flow Issue',
-        discipline: 'product' as DisciplineType,
-        problem_type: 'problem_solving' as ProblemType,
-      },
-      {
-        type: 'drill' as const,
-        id: 'drill-3',
-        title: 'Estimate Market Size for New Product',
-        display_title: 'Estimate Market Size for New Product',
-        discipline: 'product' as DisciplineType,
-        problem_type: 'guestimation' as ProblemType,
-      },
-    ];
-
-    // Filter drills by search query
-    const lowerQuery = params.query.toLowerCase();
-    const drillResults = allDrills.filter(drill =>
-      drill.title.toLowerCase().includes(lowerQuery)
-    );
-
-    // Mix interviews and drills together
-    const mixedResults = [...interviewResults, ...drillResults];
-
-    // Apply limit if specified
-    const limit = params.limit || 20;
-    const offset = params.offset || 0;
-    const paginatedResults = mixedResults.slice(offset, offset + limit);
-
-    return {
-      data: paginatedResults,
-      count: paginatedResults.length,
-      total: mixedResults.length,
-      limit,
-      offset,
-      has_more: offset + limit < mixedResults.length,
-    };
-  }
-
-  const searchParams = new URLSearchParams();
-  searchParams.set('query', params.query);
-  if (params.limit) searchParams.set('limit', params.limit.toString());
-  if (params.offset) searchParams.set('offset', params.offset.toString());
-
-  const query = searchParams.toString();
-  return fetchApi(`/api/v1/interviews/search${query ? `?${query}` : ''}`);
-}
-
-// Note: getNextInterviewProblem() removed - part of level/interview-mode system
-
-// Legacy function - createInterviewSession is replaced by startInterviewSession
-// @deprecated Use startInterviewSession() instead
-export async function createInterviewSession(
-  data: InterviewSessionCreate,
-  userId: string
-): Promise<InterviewSession> {
-  // This function is deprecated - redirect to startInterviewSession
-  const response = await startInterviewSession(data.problem_id);
-
-  // Convert SessionStartResponse to InterviewSession for backward compatibility
-  return {
-    id: response.session_id,
-    user_id: userId,
-    problem_id: data.problem_id,
-    status: response.status,
-    started_at: response.started_at,
-  };
-}
-
-export interface GetDashboardParams {
-  user_id: string;
-  status?: string;
-  limit?: number;
-  offset?: number;
-}
-
-export async function getDashboard(
-  params: GetDashboardParams
-): Promise<DashboardResponse> {
-  // Use dummy data when API is disabled
-  if (!IS_API_ENABLED) {
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    return getDummyDashboard(params);
-  }
-
-  const searchParams = new URLSearchParams();
-
-  // Only add user_id when auth is disabled
-  if (!IS_AUTH_ENABLED) {
-    searchParams.set('user_id', params.user_id);
-  }
-  if (params.status) searchParams.set('status', params.status);
-  if (params.limit) searchParams.set('limit', params.limit.toString());
-  if (params.offset) searchParams.set('offset', params.offset.toString());
-
-  const query = searchParams.toString();
-  return fetchApi(`/api/v1/dashboard?${query}`);
-}
-
 export async function getFeedbackDetail(
   sessionId: string
 ): Promise<FeedbackDetailResponse> {
@@ -369,105 +108,98 @@ export async function getFeedbackDetail(
     return getDummyFeedbackDetail(sessionId);
   }
 
-  return fetchApi(`/api/v1/sessions/${sessionId}/feedback`);
+  const response = await fetchApi<SessionFeedbackResponse>(
+    `/api/v1/drill-sessions/${sessionId}/feedback`
+  );
+  const feedback = response.data.feedback;
+
+  return {
+    session_id: response.data.session_id,
+    title: response.data.drill_title,
+    completed_at: response.data.completed_at ?? new Date().toISOString(),
+    evaluation_status: feedback ? 'completed' : 'pending',
+    feedback_summary: feedback?.summary ?? null,
+    skills_evaluated: feedback?.skills ?? [],
+  };
 }
 
-// Note: regenerateFeedback() removed - feature not in OpenAPI spec
 
-// Interview Session APIs (Backend handles voice connection internally)
+// Track when drill session status was first requested (for dummy data simulation)
+const drillSessionStatusStartTimes: Record<string, number> = {};
 
-/**
- * Check if user is eligible to start a new interview.
- *
- * This lightweight endpoint checks user's num_interviews without creating a session.
- * Frontend should call this before navigating to interview UI.
- *
- * @returns Eligibility status with remaining interview count and message
- */
-export async function checkInterviewEligibility(): Promise<CheckEligibilityResponse> {
+export async function getDrillSessionStatus(
+  sessionId: string
+): Promise<{
+  session_id: string;
+  status: string;
+  started_at: string;
+  completed_at?: string;
+  duration_minutes?: number;
+  has_transcript: boolean;
+  has_feedback_summary: boolean;
+}> {
   // Use dummy data when API is disabled
   if (!IS_API_ENABLED) {
     await new Promise((resolve) => setTimeout(resolve, 200));
+
+    // Simulate feedback generation taking time (15 seconds for demo purposes)
+    if (!drillSessionStatusStartTimes[sessionId]) {
+      drillSessionStatusStartTimes[sessionId] = Date.now();
+    }
+
+    const elapsedSeconds = (Date.now() - drillSessionStatusStartTimes[sessionId]) / 1000;
+    const hasFeedbackSummary = elapsedSeconds > 15;
+
     return {
-      eligible: true,
-      num_interviews: 5,
-      message: 'You have 5 interviews remaining',
-    };
-  }
-
-  // When auth is enabled, backend extracts user_id from JWT token
-  const endpoint = '/api/v1/interviews/sessions/check-eligibility';
-
-  return fetchApi<CheckEligibilityResponse>(endpoint);
-}
-
-export async function startInterviewSession(
-  interviewId: string
-): Promise<SessionStartResponse> {
-  // Use dummy data when API is disabled
-  if (!IS_API_ENABLED) {
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    return {
-      session_id: `session-${Date.now()}`,
-      status: 'ready',
-      message: 'Session started successfully',
-      interview: {
-        id: interviewId,
-        title: 'Design a Health Tracking Feature',
-        discipline: 'product',
-        estimated_duration_minutes: 45,
-      },
+      session_id: sessionId,
+      status: 'completed',
       started_at: new Date().toISOString(),
+      has_transcript: true,
+      has_feedback_summary: hasFeedbackSummary,
     };
   }
 
   // Note: When auth is enabled, user_id is extracted from JWT token
-  // When auth is disabled, use default user_id for backward compatibility
   const userId = DEFAULT_USER_ID;
   const endpoint = IS_AUTH_ENABLED
-    ? '/api/v1/interviews/sessions/start'
-    : `/api/v1/interviews/sessions/start?user_id=${userId}`;
+    ? `/api/v1/drill-sessions/${sessionId}/status`
+    : `/api/v1/drill-sessions/${sessionId}/status?user_id=${userId}`;
 
-  try {
-    const response = await fetchApi<SessionStartResponse>(
-      endpoint,
-      {
-        method: 'POST',
-        body: JSON.stringify({ interview_id: interviewId }),
-      }
-    );
-    return response;
-  } catch (err) {
-    // Handle 429 (attempt limit exceeded) error specially
-    if (err instanceof ApiError && err.status === 429) {
-      try {
-        const errorData = JSON.parse(err.body);
-        // Re-throw with parsed error data attached
-        const error = new Error(errorData.message || 'You have reached the maximum number of attempts for this interview.');
-        (error as any).status = 429;
-        (error as any).error = errorData.error;
-        (error as any).attempts_used = errorData.attempts_used;
-        (error as any).max_attempts = errorData.max_attempts;
-        throw error;
-      } catch (parseErr) {
-        // If we can't parse the error body, rethrow the original error
-        throw err;
-      }
-    }
-    throw err;
-  }
+  const response = await fetchApi<{
+    session_id: string;
+    status: string;
+    started_at: string;
+    completed_at?: string | null;
+    duration_minutes?: number | null;
+    has_transcript: boolean;
+    has_feedback_summary: boolean;
+  }>(endpoint);
+
+  return {
+    session_id: response.session_id,
+    status: response.status,
+    started_at: response.started_at,
+    completed_at: response.completed_at ?? undefined,
+    duration_minutes: response.duration_minutes ?? undefined,
+    has_transcript: response.has_transcript,
+    has_feedback_summary: response.has_feedback_summary,
+  };
 }
 
-// Interview Exit Feedback - sent with abandon
-export interface InterviewExitFeedback {
+// POST /api/v1/drill-sessions/{session_id}/abandon - Abandon drill session
+export interface DrillExitFeedback {
   reasons?: string[];
   additional_feedback?: string;
 }
 
-export async function abandonInterviewSession(
+export async function abandonDrillSession(
   sessionId: string,
-  feedback?: InterviewExitFeedback
-): Promise<AbandonResponse> {
+  feedback?: DrillExitFeedback
+): Promise<{
+  session_id: string;
+  status: string;
+  abandoned_at: string;
+}> {
   // Use dummy data when API is disabled
   if (!IS_API_ENABLED) {
     await new Promise((resolve) => setTimeout(resolve, 300));
@@ -484,8 +216,8 @@ export async function abandonInterviewSession(
   // Note: When auth is enabled, user_id is extracted from JWT token
   const userId = DEFAULT_USER_ID;
   const endpoint = IS_AUTH_ENABLED
-    ? `/api/v1/interviews/sessions/${sessionId}/abandon`
-    : `/api/v1/interviews/sessions/${sessionId}/abandon?user_id=${userId}`;
+    ? `/api/v1/drill-sessions/${sessionId}/abandon`
+    : `/api/v1/drill-sessions/${sessionId}/abandon?user_id=${userId}`;
 
   const body: any = {};
   if (feedback) {
@@ -494,65 +226,12 @@ export async function abandonInterviewSession(
 
   return fetchApi(endpoint, {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify(body),
   });
 }
-
-// Note: endInterviewSession() removed - handled by backend voice pipeline
-// Resume token API removed - backend handles Gemini reconnection internally
-
-// Track when session status was first requested (for dummy data simulation)
-const sessionStatusStartTimes: Record<string, number> = {};
-
-export async function getSessionStatus(
-  sessionId: string
-): Promise<import('@/types/interview').SessionStatusResponse> {
-  // Use dummy data when API is disabled
-  if (!IS_API_ENABLED) {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-
-    // Simulate feedback generation taking time (15 seconds for demo purposes)
-    if (!sessionStatusStartTimes[sessionId]) {
-      sessionStatusStartTimes[sessionId] = Date.now();
-    }
-
-    const elapsedSeconds = (Date.now() - sessionStatusStartTimes[sessionId]) / 1000;
-    const evaluationStatus = elapsedSeconds > 15 ? 'completed' : 'pending';
-
-    return {
-      session_id: sessionId,
-      status: 'completed',
-      started_at: new Date().toISOString(),
-      has_transcript: true,
-      has_audio_recording: true,
-      evaluation_status: evaluationStatus,
-    };
-  }
-
-  // Note: When auth is enabled, user_id is extracted from JWT token
-  const userId = DEFAULT_USER_ID;
-  const endpoint = IS_AUTH_ENABLED
-    ? `/api/v1/interviews/sessions/${sessionId}/status`
-    : `/api/v1/interviews/sessions/${sessionId}/status?user_id=${userId}`;
-
-  return fetchApi(endpoint);
-}
-
-// Note: All Level System APIs removed - feature not in current OpenAPI spec
-// Removed functions:
-// - getLevelProgress()
-// - getCurrentLevel()
-// - getCurrentProblem()
-// - substituteProblem()
-// - completeProblem()
-// - moveToNextProblem()
-// - getInterviewModeStatus()
-
-// Frameworks API
-// Note: Frameworks are now handled directly in frontend via JSON data
-// See: src/lib/frameworks/ for the new framework implementation
-
-// Note: submitInterviewExitFeedback() removed - not in OpenAPI spec
 
 // User Profile APIs
 export async function updateUserProfile(
@@ -573,8 +252,6 @@ export async function updateUserProfile(
         first_name: profileData.first_name,
         last_name: profileData.last_name,
         bio: profileData.bio,
-        // Keep legacy fields for backward compatibility
-        selected_domains: profileData.selected_domains,
         full_name: profileData.full_name,
       })
     );
@@ -657,6 +334,7 @@ export async function getProfileScreen(): Promise<ProfileScreenResponse> {
       last_name: 'Doe',
       email: 'john.doe@example.com',
       num_interviews: 5,
+      num_drills: 5,
       discipline: 'product',
     };
   }
@@ -668,24 +346,78 @@ export async function getProfileScreen(): Promise<ProfileScreenResponse> {
 export async function getHomeScreenRecommendation(
   userId: string
 ): Promise<HomeScreenRecommendation> {
-  return fetchApi<HomeScreenRecommendation>(`/api/v1/users/${userId}/home-screen`);
+  const greetingEndpoint = IS_AUTH_ENABLED
+    ? '/api/v1/greeting'
+    : `/api/v1/greeting?user_id=${encodeURIComponent(userId)}`;
+  const drillEndpoint = IS_AUTH_ENABLED
+    ? '/api/v1/drills'
+    : `/api/v1/drills?user_id=${encodeURIComponent(userId)}`;
+
+  const [greetingResponse, drillResponse] = await Promise.all([
+    fetchApi<SingleResponse<GreetingResponse>>(greetingEndpoint),
+    fetchApi<SingleResponse<DrillHomeResponse>>(drillEndpoint),
+  ]);
+
+  const drill = drillResponse.data;
+
+  return {
+    drill: {
+      id: drill.id,
+      title: drill.title,
+      skills_tested: drill.skills?.map((skill) => skill.name) ?? [],
+      reasoning: drill.recommendation_reasoning ?? '',
+      estimated_minutes: 0,
+      product_logo_url: drill.product_url ?? undefined,
+    },
+    session_count: greetingResponse.data.session_number,
+  };
 }
 
 export async function getUserSkills(userId: string): Promise<UserSkillsResponse> {
-  return fetchApi<UserSkillsResponse>(`/api/v1/users/${userId}/skills`);
+  const endpoint = IS_AUTH_ENABLED
+    ? '/api/v1/skills/me'
+    : `/api/v1/skills/me?user_id=${encodeURIComponent(userId)}`;
+  const response = await fetchApi<SkillMapResponse>(endpoint);
+
+  return {
+    skills: response.skills.map((skill) => ({
+      id: skill.id,
+      skill_name: skill.name,
+      skill_description: '',
+      score: skill.score,
+      zone: skill.zone ?? 'untested',
+      tested: skill.is_tested,
+    })),
+    total_sessions: response.total_completed_sessions,
+    last_updated: null,
+  };
 }
 
 export async function getSkillDetail(
   userId: string,
-  skillName: string
+  skillId: string
 ): Promise<SkillDetailResponse> {
-  return fetchApi<SkillDetailResponse>(
-    `/api/v1/users/${userId}/skills/${encodeURIComponent(skillName)}/history`
-  );
+  const endpoint = IS_AUTH_ENABLED
+    ? `/api/v1/skills/me/${encodeURIComponent(skillId)}/history`
+    : `/api/v1/skills/me/${encodeURIComponent(skillId)}/history?user_id=${encodeURIComponent(userId)}`;
+  const response = await fetchApi<SkillHistoryResponse>(endpoint);
+
+  return {
+    skill_name: response.skill.name,
+    skill_description: response.skill.description ?? '',
+    times_tested: response.total_tested,
+    sessions: response.sessions.map((session) => ({
+      session_id: session.session_id,
+      drill_title: session.drill_title,
+      drill_logo_url: session.product_logo_url ?? undefined,
+      completed_at: session.completed_at,
+      status: session.performance as SkillDetailResponse['sessions'][number]['status'],
+    })),
+  };
 }
 // Drills API
 
-// GET /api/v1/drills - Get 5 recommended drills
+// GET /api/v1/library/drills - Get 5 drills for carousel
 export async function getRecommendedDrills(): Promise<PaginatedResponse<Drill>> {
   if (!IS_API_ENABLED) {
     // Simulate API call with dummy data - Return diverse set of drills
@@ -731,47 +463,7 @@ export async function getRecommendedDrills(): Promise<PaginatedResponse<Drill>> 
     };
   }
 
-  return fetchApi('/api/v1/drills?limit=5');
-}
-
-// GET /api/v1/library/interviews - Browse/search interviews
-export async function getLibraryInterviews(params: {
-  query?: string;
-  limit?: number;
-  offset?: number;
-}): Promise<PaginatedResponse<import('@/types/api').Interview>> {
-  if (!IS_API_ENABLED) {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    // Filter dummy data by search query
-    const filtered = filterDummyProblems({
-      search: params.query,
-      limit: params.limit,
-      offset: params.offset
-    });
-
-    // Convert to Interview format
-    return {
-      ...filtered,
-      data: filtered.data.map(p => ({
-        id: p.id,
-        title: p.title,
-        discipline: 'product' as DisciplineType,
-        product_logo_url: p.product_logo_url ?? null,
-        description: p.description,
-        estimated_duration_minutes: p.estimated_duration_minutes ?? 45,
-        is_attempted: p.is_attempted ?? false,
-        last_attempted_at: p.last_attempted_at ?? null,
-      })),
-    };
-  }
-
-  const searchParams = new URLSearchParams();
-  if (params.query) searchParams.set('query', params.query);
-  if (params.limit) searchParams.set('limit', params.limit.toString());
-  if (params.offset) searchParams.set('offset', params.offset.toString());
-
-  const query = searchParams.toString();
-  return fetchApi(`/api/v1/library/interviews${query ? `?${query}` : ''}`);
+  return getLibraryDrills({ limit: 5 });
 }
 
 // GET /api/v1/library/drills - Browse/search drills with filtering
@@ -863,31 +555,31 @@ export async function getLibraryDrills(params: {
         id: 'drill-3',
         display_title: 'Estimate Market Size for New Product',
         discipline: 'product',
-        problem_type: 'guestimation',
+        problem_type: 'guesstimation',
       },
       {
         id: 'drill-8',
         display_title: 'Calculate Revenue Potential',
         discipline: 'product',
-        problem_type: 'guestimation',
+        problem_type: 'guesstimation',
       },
       {
         id: 'drill-13',
         display_title: 'Estimate Daily Active Users Growth',
         discipline: 'product',
-        problem_type: 'guestimation',
+        problem_type: 'guesstimation',
       },
       {
         id: 'drill-18',
         display_title: 'Calculate Server Capacity Needs',
         discipline: 'product',
-        problem_type: 'guestimation',
+        problem_type: 'guesstimation',
       },
       {
         id: 'drill-23',
         display_title: 'Estimate Customer Acquisition Cost',
         discipline: 'product',
-        problem_type: 'guestimation',
+        problem_type: 'guesstimation',
       },
 
       // Product Strategy (5 drills)
@@ -1051,7 +743,30 @@ export async function getLibraryDrills(params: {
   if (params.offset) searchParams.set('offset', params.offset.toString());
 
   const query = searchParams.toString();
-  return fetchApi(`/api/v1/library/drills${query ? `?${query}` : ''}`);
+  type LibraryDrillResponse = DrillResponse & {
+    display_title?: string;
+    discipline?: DisciplineType;
+    product_logo_url?: string | null;
+    skills_tested?: string[];
+    is_attempted?: boolean;
+  };
+
+  const response = await fetchApi<PaginatedResponse<LibraryDrillResponse>>(
+    `/api/v1/library/drills${query ? `?${query}` : ''}`
+  );
+
+  return {
+    ...response,
+    data: response.data.map((drill) => ({
+      id: drill.id,
+      display_title: drill.display_title ?? drill.title,
+      discipline: drill.discipline ?? 'product',
+      problem_type: (drill.problem_type ?? 'behavioral') as ProblemType,
+      skills_tested: drill.skills_tested ?? drill.skills?.map((skill) => skill.name),
+      product_logo_url: drill.product_logo_url ?? drill.product_url ?? null,
+      is_attempted: drill.is_attempted ?? drill.is_completed ?? false,
+    })),
+  };
 }
 
 // GET /api/v1/library/metadata - Get filter metadata
@@ -1062,7 +777,7 @@ export async function getLibraryMetadata(): Promise<SingleResponse<LibraryMetada
       data: {
         problem_types: [
           'behavioral',
-          'guestimation',
+          'guesstimation',
           'metrics',
           'problem_solving',
           'product_design',
@@ -1130,7 +845,7 @@ export async function getDashboardDrills(params: {
   user_id: string;
   limit?: number;
   offset?: number;
-}): Promise<import('@/types/api').DrillsDashboardResponse> {
+}): Promise<import('@/types/api').DashboardSessionsResponse> {
   if (!IS_API_ENABLED) {
     await new Promise((resolve) => setTimeout(resolve, 600));
     const { getDummyDashboardDrills } = await import('./dummy-data');

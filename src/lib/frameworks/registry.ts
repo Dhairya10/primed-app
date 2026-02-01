@@ -1,11 +1,10 @@
-import type { DomainType, Framework } from '@/types/api';
+import type { Framework } from '@/types/api';
 
 export interface FrameworkDefinition {
   id: string;
   name: string;
   description: string;
   key_points: string[];
-  applicable_domains?: DomainType[]; // Optional domain applicability
   priority?: number; // For ordering
 }
 

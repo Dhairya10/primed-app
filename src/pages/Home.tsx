@@ -57,7 +57,7 @@ export function Home() {
 
     try {
       const session = await startDrillSession(data.drill.id);
-      navigate({ to: `/interview/${session.session_id}` });
+      navigate({ to: `/drill/${session.session_id}` });
     } catch (err) {
       console.error('Failed to start drill:', err);
       setError('Failed to start drill');

@@ -14,9 +14,9 @@ import { Home } from '@/pages/Home';
 import { Dashboard } from '@/pages/Dashboard';
 import { Profile } from '@/pages/Profile';
 import { Library } from '@/pages/Library';
-import { Interview } from '@/pages/Interview';
 import { SkillDetailScreen } from '@/pages/SkillDetailScreen';
 import { FeedbackScreen } from '@/pages/FeedbackScreen';
+import { DrillSession } from '@/pages/DrillSession';
 import { Onboarding } from '@/pages/Onboarding';
 import { Login } from '@/pages/Login';
 import { Signup } from '@/pages/Signup';
@@ -106,22 +106,16 @@ const libraryRoute = createRoute({
   component: Library,
 });
 
-const interviewRoute = createRoute({
-  getParentRoute: () => authenticatedLayout,
-  path: '/interview/$sessionId',
-  component: Interview,
-});
-
-const interviewNewRoute = createRoute({
-  getParentRoute: () => authenticatedLayout,
-  path: '/interview',
-  component: Interview,
-});
-
 const skillDetailRoute = createRoute({
   getParentRoute: () => authenticatedLayout,
-  path: '/skills/$skillName',
+  path: '/skills/$skillId',
   component: SkillDetailScreen,
+});
+
+const drillSessionRoute = createRoute({
+  getParentRoute: () => authenticatedLayout,
+  path: '/drill/$sessionId',
+  component: DrillSession,
 });
 
 const feedbackRoute = createRoute({
@@ -226,9 +220,8 @@ const routeTree = rootRoute.addChildren([
     dashboardRoute,
     profileRoute,
     libraryRoute,
-    interviewRoute,
-    interviewNewRoute,
     skillDetailRoute,
+    drillSessionRoute,
     feedbackRoute,
   ]),
 ]);

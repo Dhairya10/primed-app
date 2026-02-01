@@ -8,11 +8,11 @@ import type { SkillStatus } from '@/types/api';
 
 export function SkillDetailScreen() {
   const navigate = useNavigate();
-  const { skillName } = useParams({ strict: false }) as { skillName: string };
+  const { skillId } = useParams({ strict: false }) as { skillId: string };
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['skill-detail', skillName],
-    queryFn: () => getSkillDetail(DEFAULT_USER_ID, skillName),
+    queryKey: ['skill-detail', skillId],
+    queryFn: () => getSkillDetail(DEFAULT_USER_ID, skillId),
   });
 
   const getStatusBadge = (status: SkillStatus) => {

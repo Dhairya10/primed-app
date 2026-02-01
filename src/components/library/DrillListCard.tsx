@@ -39,8 +39,8 @@ export function DrillListCard({ drill, isCompleted = false }: DrillListCardProps
       // Step 2: Start drill session
       const session = await startDrillSession(drill.id);
 
-      // Step 3: Navigate to interview screen
-      navigate({ to: `/interview/${session.session_id}` });
+      // Step 3: Navigate to drill session screen
+      navigate({ to: `/drill/${session.session_id}` });
     } catch (error) {
       console.error('Failed to start drill:', error);
       showToast('Failed to start drill. Please try again.', 'error');

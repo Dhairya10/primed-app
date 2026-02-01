@@ -11,7 +11,7 @@ export function MicrophoneButton({
   onToggleMute,
   disabled = false,
 }: MicrophoneButtonProps) {
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       onToggleMute();
@@ -21,28 +21,24 @@ export function MicrophoneButton({
   return (
     <button
       onClick={onToggleMute}
-      onKeyDown={handleKeyDown}
+      onKeyDown={handleKeyPress}
       disabled={disabled}
       aria-label={isMuted ? 'Unmute microphone' : 'Mute microphone'}
       aria-pressed={isMuted}
-      className="
-        min-h-[44px] min-w-[44px]
-        w-16 h-16
-        rounded-full
-        bg-[#2a2a2a]
-        text-white
-        flex items-center justify-center
-        transition-all duration-200
-        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white
-        disabled:opacity-50 disabled:cursor-not-allowed
-        active:scale-[0.98]
-        touch-manipulation
-      "
+      className={`
+        min-h-[44px] min-w-[44px] p-3
+        bg-ink-950 text-paper-50
+        border-2 transition-all duration-200
+        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-paper-50
+        active:scale-95
+        ${isMuted ? 'border-paper-400' : 'border-paper-50'}
+        ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-ink-800'}
+      `}
     >
       {isMuted ? (
-        <MicOff className="w-6 h-6" />
+        <MicOff className="w-5 h-5" />
       ) : (
-        <Mic className="w-6 h-6" />
+        <Mic className="w-5 h-5" />
       )}
     </button>
   );

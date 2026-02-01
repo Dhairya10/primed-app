@@ -45,7 +45,7 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
 
   const handleSkillClick = (skill: UserSkill) => {
     if (skill.tested) {
-      navigate({ to: `/skills/${skill.skill_name}` });
+      navigate({ to: `/skills/${skill.id}` });
     } else {
       navigate({ to: '/library', search: { skill: skill.skill_name } });
     }
@@ -97,9 +97,9 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
           <div className="space-y-3">
             {skillsByZone.red.map((skill) => (
               <button
-                key={skill.skill_name}
+                key={skill.id}
                 onClick={() => handleSkillClick(skill)}
-                onMouseEnter={() => setHoveredSkill(skill.skill_name)}
+                onMouseEnter={() => setHoveredSkill(skill.id)}
                 onMouseLeave={() => setHoveredSkill(null)}
                 className="w-full text-left group relative"
                 type="button"
@@ -110,7 +110,7 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
                     {skill.skill_name}
                   </span>
                 </div>
-                {hoveredSkill === skill.skill_name && (
+                {hoveredSkill === skill.id && (
                   <div className="absolute left-0 top-full mt-1 p-2 bg-black border border-white/20 rounded text-xs text-white/70 z-10 w-48">
                     {skill.skill_description}
                   </div>
@@ -130,9 +130,9 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
           <div className="space-y-3">
             {skillsByZone.yellow.map((skill) => (
               <button
-                key={skill.skill_name}
+                key={skill.id}
                 onClick={() => handleSkillClick(skill)}
-                onMouseEnter={() => setHoveredSkill(skill.skill_name)}
+                onMouseEnter={() => setHoveredSkill(skill.id)}
                 onMouseLeave={() => setHoveredSkill(null)}
                 className="w-full text-left group relative"
                 type="button"
@@ -143,7 +143,7 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
                     {skill.skill_name}
                   </span>
                 </div>
-                {hoveredSkill === skill.skill_name && (
+                {hoveredSkill === skill.id && (
                   <div className="absolute left-0 top-full mt-1 p-2 bg-black border border-white/20 rounded text-xs text-white/70 z-10 w-48">
                     {skill.skill_description}
                   </div>
@@ -163,9 +163,9 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
           <div className="space-y-3">
             {skillsByZone.green.map((skill) => (
               <button
-                key={skill.skill_name}
+                key={skill.id}
                 onClick={() => handleSkillClick(skill)}
-                onMouseEnter={() => setHoveredSkill(skill.skill_name)}
+                onMouseEnter={() => setHoveredSkill(skill.id)}
                 onMouseLeave={() => setHoveredSkill(null)}
                 className="w-full text-left group relative"
                 type="button"
@@ -176,7 +176,7 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
                     {skill.skill_name}
                   </span>
                 </div>
-                {hoveredSkill === skill.skill_name && (
+                {hoveredSkill === skill.id && (
                   <div className="absolute left-0 top-full mt-1 p-2 bg-black border border-white/20 rounded text-xs text-white/70 z-10 w-48">
                     {skill.skill_description}
                   </div>
@@ -195,9 +195,9 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
           <div className="flex flex-wrap gap-3">
             {skillsByZone.untested.map((skill) => (
               <button
-                key={skill.skill_name}
+                key={skill.id}
                 onClick={() => handleSkillClick(skill)}
-                onMouseEnter={() => setHoveredSkill(skill.skill_name)}
+                onMouseEnter={() => setHoveredSkill(skill.id)}
                 onMouseLeave={() => setHoveredSkill(null)}
                 className="group relative"
                 type="button"
@@ -208,7 +208,7 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
                     {skill.skill_name}
                   </span>
                 </div>
-                {hoveredSkill === skill.skill_name && (
+                {hoveredSkill === skill.id && (
                   <div className="absolute left-0 top-full mt-1 p-2 bg-black border border-white/20 rounded text-xs text-white/70 z-10 w-48">
                     {skill.skill_description}
                   </div>

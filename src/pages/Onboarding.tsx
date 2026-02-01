@@ -4,7 +4,7 @@ import { NameInput } from '@/components/onboarding/NameInput';
 import { DisciplineSelector } from '@/components/onboarding/DisciplineSelector';
 import { Button } from '@/components/ui/Button';
 import { ONBOARDING_DISCIPLINES } from '@/lib/constants';
-import { updateUserProfile, getInterviewsMetadata } from '@/lib/api';
+import { updateUserProfile } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth-store';
 import type { DisciplineType } from '@/types/api';
 
@@ -14,9 +14,8 @@ export function Onboarding() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [selectedDiscipline, setSelectedDiscipline] = useState<DisciplineType | null>(null);
-  const [disciplines, setDisciplines] = useState<DisciplineType[]>(ONBOARDING_DISCIPLINES);
+  const [disciplines] = useState<DisciplineType[]>(ONBOARDING_DISCIPLINES);
   const [loading, setLoading] = useState(false);
-  const [fetchingDisciplines, setFetchingDisciplines] = useState(true);
 
   // Validation errors
   const [firstNameError, setFirstNameError] = useState('');
@@ -33,23 +32,6 @@ export function Onboarding() {
       }
     }
   }, [user]);
-
-  // Fetch disciplines on mount
-  useEffect(() => {
-    const fetchDisciplines = async () => {
-      try {
-        const metadata = await getInterviewsMetadata();
-        setDisciplines(metadata.disciplines);
-      } catch (error) {
-        console.error('Failed to fetch disciplines:', error);
-        // Fall back to hardcoded disciplines (already set in state)
-      } finally {
-        setFetchingDisciplines(false);
-      }
-    };
-
-    fetchDisciplines();
-  }, []);
 
   // Validate first name
   const validateFirstName = (value: string): boolean => {
@@ -160,26 +142,12 @@ export function Onboarding() {
           />
 
           {/* Discipline Selector */}
-          {fetchingDisciplines ? (
-            <div className="space-y-4">
-              <div className="h-8 bg-white/10 rounded animate-pulse" />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                {[1, 2, 3, 4].map((i) => (
-                  <div
-                    key={i}
-                    className="h-[140px] md:h-[160px] bg-white/10 rounded-lg animate-pulse"
-                  />
-                ))}
-              </div>
-            </div>
-          ) : (
-            <DisciplineSelector
-              disciplines={disciplines}
-              selectedDiscipline={selectedDiscipline}
-              onDisciplineChange={handleDisciplineChange}
-              error={disciplineError}
-            />
-          )}
+          <DisciplineSelector
+            disciplines={disciplines}
+            selectedDiscipline={selectedDiscipline}
+            onDisciplineChange={handleDisciplineChange}
+            error={disciplineError}
+          />
         </div>
 
         {/* Continue Button */}
@@ -188,7 +156,7 @@ export function Onboarding() {
             variant="primary"
             size="lg"
             onClick={handleContinue}
-            disabled={!canContinue || loading || fetchingDisciplines}
+            disabled={!canContinue || loading}
             loading={loading}
             className="min-w-[200px]"
           >
