@@ -17,7 +17,7 @@ export const IS_END_SCREEN_TESTING_ENABLED = true; // Set to false to remove end
  * 2. Ensure Supabase environment variables are set (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY)
  * 3. Remove user_id query parameters from API calls (backend extracts from JWT)
  */
-export const DEFAULT_USER_ID = '511e8f0f-1feb-419a-80d3-dd06b6fdf6ca';
+export const DEFAULT_USER_ID = '';
 
 // API endpoint for local testing (use localhost to avoid ad blocker issues)
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';

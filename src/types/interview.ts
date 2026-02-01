@@ -7,7 +7,6 @@ export interface CheckEligibilityResponse {
 
 export interface SessionStartResponse {
   session_id: string;
-  signed_url: string; // ElevenLabs signed WebSocket URL
   status: string; // "ready", "active", "failed"
   message?: string | null; // Optional message
   interview: {

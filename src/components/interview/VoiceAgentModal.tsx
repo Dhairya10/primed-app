@@ -7,14 +7,14 @@ interface VoiceAgentModalProps {
   isOpen: boolean;
   onClose: () => void;
   role: Role | null;
-  agentId?: string;
+  sessionId?: string;
 }
 
 export function VoiceAgentModal({
   isOpen,
   onClose,
   role,
-  agentId,
+  sessionId,
 }: VoiceAgentModalProps) {
   const [isConnected, setIsConnected] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -74,7 +74,7 @@ export function VoiceAgentModal({
         )}
 
         <VoiceAgent
-          agentId={agentId}
+          sessionId={sessionId}
           onConnect={handleConnect}
           onDisconnect={handleDisconnect}
         />

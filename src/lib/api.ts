@@ -90,6 +90,15 @@ async function fetchApi<T>(
   return response.json();
 }
 
+export function getVoiceAgentWebSocketUrl(sessionId: string, token?: string): string {
+  const trimmedBase = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+  const wsUrl = trimmedBase.startsWith('ws')
+    ? trimmedBase
+    : trimmedBase.replace('http://', 'ws://').replace('https://', 'wss://');
+  const query = token ? `?token=${encodeURIComponent(token)}` : '';
+  return `${wsUrl}/api/v1/ws/drill/${sessionId}${query}`;
+}
+
 // Get all interviews with attempt status (authenticated endpoint)
 export async function getInterviews(
   params: { limit?: number; offset?: number } = {}
@@ -365,7 +374,7 @@ export async function getFeedbackDetail(
 
 // Note: regenerateFeedback() removed - feature not in OpenAPI spec
 
-// Interview Session APIs (Backend handles ElevenLabs connection internally)
+// Interview Session APIs (Backend handles voice connection internally)
 
 /**
  * Check if user is eligible to start a new interview.
@@ -400,7 +409,6 @@ export async function startInterviewSession(
     await new Promise((resolve) => setTimeout(resolve, 800));
     return {
       session_id: `session-${Date.now()}`,
-      signed_url: 'wss://api.elevenlabs.io/v1/convai/conversation?agent_id=dummy',
       status: 'ready',
       message: 'Session started successfully',
       interview: {
@@ -490,7 +498,7 @@ export async function abandonInterviewSession(
   });
 }
 
-// Note: endInterviewSession() removed - replaced by ElevenLabs webhook flow
+// Note: endInterviewSession() removed - handled by backend voice pipeline
 // Resume token API removed - backend handles Gemini reconnection internally
 
 // Track when session status was first requested (for dummy data simulation)
@@ -1091,7 +1099,6 @@ export async function startDrillSession(
     await new Promise((resolve) => setTimeout(resolve, 600));
     return {
       session_id: `drill-session-${Date.now()}`,
-      signed_url: 'wss://api.elevenlabs.io/v1/convai/conversation?agent_id=dummy-drill',
       status: 'ready',
       message: 'Drill session started successfully',
       problem: {

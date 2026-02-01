@@ -16,6 +16,8 @@ interface InterviewStore {
   // Audio state
   mode: 'speaking' | 'listening' | 'thinking';
   isMuted: boolean;
+  transcriptHistory: Array<{ role: 'user' | 'assistant'; text: string }>;
+  audioVolume: { input: number; output: number };
 
   // Actions
   setConnectionStatus: (status: InterviewStore['connectionStatus']) => void;
@@ -26,6 +28,8 @@ interface InterviewStore {
   setEstimatedDurationMinutes: (minutes: number) => void;
   setMode: (mode: InterviewStore['mode']) => void;
   setMuted: (muted: boolean) => void;
+  addTranscript: (role: 'user' | 'assistant', text: string) => void;
+  updateAudioVolume: (input: number, output: number) => void;
   resetStore: () => void;
 }
 
@@ -39,6 +43,8 @@ export const useInterviewStore = create<InterviewStore>((set) => ({
   estimatedDurationMinutes: 45,
   mode: 'listening',
   isMuted: false,
+  transcriptHistory: [],
+  audioVolume: { input: 0, output: 0 },
 
   // Actions
   setConnectionStatus: (status) => set({ connectionStatus: status }),
@@ -50,6 +56,11 @@ export const useInterviewStore = create<InterviewStore>((set) => ({
   setEstimatedDurationMinutes: (minutes) => set({ estimatedDurationMinutes: minutes }),
   setMode: (mode) => set({ mode }),
   setMuted: (isMuted) => set({ isMuted }),
+  addTranscript: (role, text) =>
+    set((state) => ({
+      transcriptHistory: [...state.transcriptHistory, { role, text }],
+    })),
+  updateAudioVolume: (input, output) => set({ audioVolume: { input, output } }),
   resetStore: () =>
     set({
       connectionStatus: 'disconnected',
@@ -60,5 +71,7 @@ export const useInterviewStore = create<InterviewStore>((set) => ({
       estimatedDurationMinutes: 45,
       mode: 'listening',
       isMuted: false,
+      transcriptHistory: [],
+      audioVolume: { input: 0, output: 0 },
     }),
 }));

@@ -1,18 +1,19 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { MoreVertical, X } from 'lucide-react';
 import { Timer } from '@/components/interview/Timer';
 import { AudioWaveform } from '@/components/interview/AudioWaveform';
 import { MicrophoneButton } from '@/components/interview/MicrophoneButton';
 import { FeedbackModal, type FeedbackData } from '@/components/interview/FeedbackModal';
 import { useInterviewStore } from '@/lib/interview-store';
-import { useElevenLabsConversation } from '@/hooks/useElevenLabsConversation';
+import { useVoiceAgent } from '@/hooks/useVoiceAgent';
+import { AudioCaptureService } from '@/services/audioCapture';
+import { AudioPlaybackService } from '@/services/audioPlayback';
+import { useAuthStore } from '@/lib/auth-store';
 import { IS_END_SCREEN_TESTING_ENABLED } from '@/lib/constants';
 
 interface MainInterviewScreenProps {
   problemTitle: string;
-  estimatedDurationMinutes: number;
   sessionId: string;
-  signedUrl: string;
   onNaturalEnd: (reason: string) => void;
   onEmergencyExit: () => void;
   onError: (error: string) => void;
@@ -21,8 +22,7 @@ interface MainInterviewScreenProps {
 
 export function MainInterviewScreen({
   problemTitle,
-  estimatedDurationMinutes,
-  signedUrl,
+  sessionId,
   onNaturalEnd,
   onEmergencyExit,
   onError,
@@ -32,7 +32,108 @@ export function MainInterviewScreen({
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
-  const { elapsedSeconds, incrementElapsedSeconds, connectionStatus } = useInterviewStore();
+  const {
+    elapsedSeconds,
+    incrementElapsedSeconds,
+    connectionStatus,
+    setConnectionStatus,
+    setInterviewStartTime,
+    isMuted,
+    setMuted,
+    mode,
+    setMode,
+    audioVolume,
+    updateAudioVolume,
+    addTranscript,
+  } = useInterviewStore();
+  const authToken = useAuthStore((state) => state.session?.access_token);
+
+  const audioCaptureRef = useRef<AudioCaptureService | null>(null);
+  const audioPlaybackRef = useRef<AudioPlaybackService | null>(null);
+  const sendAudioRef = useRef<(audioData: ArrayBuffer) => void>(() => {});
+  const disconnectRef = useRef<() => void>(() => {});
+
+  if (!audioCaptureRef.current) {
+    audioCaptureRef.current = new AudioCaptureService((audioData) => {
+      sendAudioRef.current(audioData);
+    });
+  }
+
+  if (!audioPlaybackRef.current) {
+    audioPlaybackRef.current = new AudioPlaybackService();
+  }
+
+  const audioCapture = audioCaptureRef.current!;
+  const audioPlayback = audioPlaybackRef.current!;
+
+  const getMicErrorMessage = (err: unknown) => {
+    const name = err instanceof Error ? err.name : '';
+    if (name === 'NotAllowedError') {
+      return 'Microphone access denied. Please allow microphone access to continue.';
+    }
+    if (name === 'NotFoundError') {
+      return 'No microphone found. Please connect a microphone.';
+    }
+    if (name === 'NotReadableError') {
+      return 'Microphone is already in use by another application.';
+    }
+    return 'Microphone access failed. Please check your audio settings.';
+  };
+
+  const { connectionStatus: agentStatus, sendAudio, disconnect } = useVoiceAgent({
+    sessionId,
+    authToken,
+    onConnected: async () => {
+      try {
+        audioCapture.unmute();
+        await audioCapture.start();
+        setInterviewStartTime(Date.now());
+      } catch (err) {
+        const message = getMicErrorMessage(err);
+        console.error('Microphone error:', err);
+        onError(message);
+        disconnectRef.current();
+      }
+    },
+    onDisconnected: () => {
+      audioCapture.unmute();
+      audioCapture.stop();
+      audioPlayback.stop();
+      setMuted(false);
+      updateAudioVolume(0, 0);
+      setMode('thinking');
+    },
+    onAudioReceived: (audioData, mimeType) => {
+      void audioPlayback.playAudio(audioData, mimeType);
+    },
+    onTranscript: (role, text) => {
+      addTranscript(role, text);
+    },
+    onError: (err) => {
+      console.error('Voice agent error:', err);
+      onError(err.message);
+    },
+  });
+
+  useEffect(() => {
+    sendAudioRef.current = sendAudio;
+  }, [sendAudio]);
+
+  useEffect(() => {
+    disconnectRef.current = disconnect;
+  }, [disconnect]);
+
+  useEffect(() => {
+    setConnectionStatus(agentStatus);
+  }, [agentStatus, setConnectionStatus]);
+
+  useEffect(() => {
+    return () => {
+      audioCapture.stop();
+      audioPlayback.stop();
+      disconnect();
+    };
+  }, [audioCapture, audioPlayback, disconnect]);
 
   // Start elapsed timer
   useEffect(() => {
@@ -43,7 +144,7 @@ export function MainInterviewScreen({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run once on mount
 
-  // Auto-navigate to end screen when Eleven Labs disconnects
+  // Auto-navigate to end screen when voice agent disconnects
   const previousConnectionStatus = useRef<'connecting' | 'connected' | 'disconnected'>('disconnected');
 
   useEffect(() => {
@@ -53,7 +154,7 @@ export function MainInterviewScreen({
       previousConnectionStatus.current === 'connected' &&
       connectionStatus === 'disconnected'
     ) {
-      console.log('🔚 ElevenLabs disconnected - navigating to end screen');
+      console.log('🔚 Voice agent disconnected - navigating to end screen');
       onNaturalEnd('Agent disconnected');
     }
 
@@ -61,16 +162,34 @@ export function MainInterviewScreen({
     previousConnectionStatus.current = connectionStatus;
   }, [connectionStatus, onNaturalEnd]);
 
-  // Initialize ElevenLabs conversation
-  const { endConversation, conversation, mode } = useElevenLabsConversation({
-    signedUrl,
-    problemTitle,
-    estimatedDurationMinutes,
-    onError: (error) => {
-      console.error('ElevenLabs error:', error);
-      onError(error.message);
-    },
-  });
+  const modeRef = useRef(mode);
+
+  useEffect(() => {
+    modeRef.current = mode;
+  }, [mode]);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      const inputVolume = audioCapture.getInputVolume();
+      const outputVolume = audioPlayback.getOutputVolume();
+      updateAudioVolume(inputVolume, outputVolume);
+
+      const nextMode = agentStatus !== 'connected'
+        ? 'thinking'
+        : outputVolume > 0.03
+          ? 'speaking'
+          : inputVolume > 0.03
+            ? 'listening'
+            : 'thinking';
+
+      if (nextMode !== modeRef.current) {
+        setMode(nextMode);
+        modeRef.current = nextMode;
+      }
+    }, 100);
+
+    return () => window.clearInterval(interval);
+  }, [agentStatus, audioCapture, audioPlayback, setMode, updateAudioVolume]);
 
   // Prevent accidental navigation away from interview
   useEffect(() => {
@@ -127,15 +246,25 @@ export function MainInterviewScreen({
     // TODO: Send feedback to backend
     console.log('Feedback submitted:', feedback);
     setShowFeedbackModal(false);
-    endConversation();
+    disconnect();
     onEmergencyExit();
   };
 
   const handleFeedbackSkip = () => {
     setShowFeedbackModal(false);
-    endConversation();
+    disconnect();
     onEmergencyExit();
   };
+
+  const handleToggleMute = useCallback(() => {
+    const nextMuted = !isMuted;
+    if (nextMuted) {
+      audioCapture.mute();
+    } else {
+      audioCapture.unmute();
+    }
+    setMuted(nextMuted);
+  }, [audioCapture, isMuted, setMuted]);
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
@@ -179,12 +308,21 @@ export function MainInterviewScreen({
       <div className="flex-1 flex flex-col items-center justify-between px-4 py-6 md:py-12">
         {/* Waveform container - centered but doesn't consume all space */}
         <div className="flex-1 flex items-center justify-center w-full max-h-[45vh] md:max-h-none">
-          <AudioWaveform conversation={conversation} mode={mode} />
+          <AudioWaveform
+            inputVolume={audioVolume.input}
+            outputVolume={audioVolume.output}
+            mode={mode}
+            isConnected={connectionStatus === 'connected'}
+          />
         </div>
 
         {/* Fixed control buttons section - guaranteed space */}
         <div className="flex-shrink-0 flex items-center justify-center gap-8 md:gap-12 pt-6 md:pt-16 pb-24 md:pb-8">
-          <MicrophoneButton conversation={conversation} />
+          <MicrophoneButton
+            isMuted={isMuted}
+            onToggleMute={handleToggleMute}
+            disabled={connectionStatus !== 'connected'}
+          />
 
           {/* Test button - only visible when IS_END_SCREEN_TESTING_ENABLED is true */}
           {IS_END_SCREEN_TESTING_ENABLED && onGoToEndScreen && (

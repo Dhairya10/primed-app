@@ -1,42 +1,28 @@
-import { useState } from 'react';
 import { Mic, MicOff } from 'lucide-react';
-import type { Conversation } from '@elevenlabs/client';
 
 interface MicrophoneButtonProps {
-  conversation: Conversation | null;
+  isMuted: boolean;
+  onToggleMute: () => void;
+  disabled?: boolean;
 }
 
-export function MicrophoneButton({ conversation }: MicrophoneButtonProps) {
-  const [isMuted, setIsMuted] = useState(false);
-
-  const toggleMute = () => {
-    if (!conversation) return;
-
-    try {
-      const newMutedState = !isMuted;
-
-      // Mute/unmute the candidate's microphone (not the AI agent's audio)
-      conversation.setMicMuted(newMutedState);
-
-      setIsMuted(newMutedState);
-      console.log(newMutedState ? '🔇 Microphone muted' : '🔊 Microphone unmuted');
-    } catch (error) {
-      console.error('Failed to toggle mute:', error);
-    }
-  };
-
+export function MicrophoneButton({
+  isMuted,
+  onToggleMute,
+  disabled = false,
+}: MicrophoneButtonProps) {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      toggleMute();
+      onToggleMute();
     }
   };
 
   return (
     <button
-      onClick={toggleMute}
+      onClick={onToggleMute}
       onKeyDown={handleKeyDown}
-      disabled={!conversation}
+      disabled={disabled}
       aria-label={isMuted ? 'Unmute microphone' : 'Mute microphone'}
       aria-pressed={isMuted}
       className="

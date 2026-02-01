@@ -1,97 +1,173 @@
-import { useCallback, useState } from 'react';
-import { useConversation } from '@elevenlabs/react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PhoneOff } from 'lucide-react';
 import { AudioWaveform } from './AudioWaveform';
+import { useVoiceAgent } from '@/hooks/useVoiceAgent';
+import { AudioCaptureService } from '@/services/audioCapture';
+import { AudioPlaybackService } from '@/services/audioPlayback';
+import { useAuthStore } from '@/lib/auth-store';
 
 interface VoiceAgentProps {
-  agentId?: string;
+  sessionId?: string;
   onConnect?: () => void;
   onDisconnect?: () => void;
 }
 
 type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'disconnecting';
 
-export function VoiceAgent({
-  agentId,
-  onConnect,
-  onDisconnect,
-}: VoiceAgentProps) {
+type WaveformMode = 'speaking' | 'listening' | 'thinking';
+
+export function VoiceAgent({ sessionId, onConnect, onDisconnect }: VoiceAgentProps) {
   const [status, setStatus] = useState<ConnectionStatus>('disconnected');
   const [error, setError] = useState<string | null>(null);
+  const [activeSessionId, setActiveSessionId] = useState<string>('');
+  const [mode, setMode] = useState<WaveformMode>('thinking');
+  const [audioVolume, setAudioVolume] = useState({ input: 0, output: 0 });
+  const modeRef = useRef<WaveformMode>('thinking');
 
-  const conversation = useConversation({
-    onConnect: () => {
-      setStatus('connected');
-      setError(null);
-      onConnect?.();
+  const authToken = useAuthStore((state) => state.session?.access_token);
+
+  const audioCaptureRef = useRef<AudioCaptureService | null>(null);
+  const audioPlaybackRef = useRef<AudioPlaybackService | null>(null);
+  const sendAudioRef = useRef<(audioData: ArrayBuffer) => void>(() => {});
+  const disconnectRef = useRef<() => void>(() => {});
+
+  if (!audioCaptureRef.current) {
+    audioCaptureRef.current = new AudioCaptureService((audioData) => {
+      sendAudioRef.current(audioData);
+    });
+  }
+
+  if (!audioPlaybackRef.current) {
+    audioPlaybackRef.current = new AudioPlaybackService();
+  }
+
+  const audioCapture = audioCaptureRef.current!;
+  const audioPlayback = audioPlaybackRef.current!;
+
+  const getMicErrorMessage = (err: unknown) => {
+    const name = err instanceof Error ? err.name : '';
+    if (name === 'NotAllowedError') {
+      return 'Microphone access denied. Please allow microphone access to continue.';
+    }
+    if (name === 'NotFoundError') {
+      return 'No microphone found. Please connect a microphone.';
+    }
+    if (name === 'NotReadableError') {
+      return 'Microphone is already in use by another application.';
+    }
+    return 'Microphone access failed. Please check your audio settings.';
+  };
+
+  const { connectionStatus: agentStatus, sendAudio, disconnect } = useVoiceAgent({
+    sessionId: activeSessionId,
+    authToken,
+    onConnected: async () => {
+      try {
+        audioCapture.unmute();
+        await audioCapture.start();
+        onConnect?.();
+      } catch (err) {
+        const message = getMicErrorMessage(err);
+        setError(message);
+        disconnectRef.current();
+      }
     },
-    onDisconnect: () => {
-      setStatus('disconnected');
+    onDisconnected: () => {
+      audioCapture.unmute();
+      audioCapture.stop();
+      audioPlayback.stop();
+      setMode('thinking');
+      setAudioVolume({ input: 0, output: 0 });
       onDisconnect?.();
     },
-    onError: (error) => {
-      console.error('Voice agent error:', error);
-      setError(typeof error === 'string' ? error : 'Connection failed');
-      setStatus('disconnected');
+    onAudioReceived: (audioData, mimeType) => {
+      void audioPlayback.playAudio(audioData, mimeType);
+    },
+    onError: (err) => {
+      setError(err.message);
     },
   });
+
+  useEffect(() => {
+    sendAudioRef.current = sendAudio;
+  }, [sendAudio]);
+
+  useEffect(() => {
+    disconnectRef.current = disconnect;
+  }, [disconnect]);
+
+  useEffect(() => {
+    if (agentStatus === 'connecting' || agentStatus === 'connected') {
+      setStatus(agentStatus);
+      if (agentStatus === 'connected') {
+        setError(null);
+      }
+    } else if (status !== 'disconnecting') {
+      setStatus('disconnected');
+    }
+  }, [agentStatus, status]);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      const input = audioCapture.getInputVolume();
+      const output = audioPlayback.getOutputVolume();
+      setAudioVolume({ input, output });
+
+      const nextMode: WaveformMode = agentStatus !== 'connected'
+        ? 'thinking'
+        : output > 0.03
+          ? 'speaking'
+          : input > 0.03
+            ? 'listening'
+            : 'thinking';
+
+      if (nextMode !== modeRef.current) {
+        setMode(nextMode);
+        modeRef.current = nextMode;
+      }
+    }, 100);
+
+    return () => window.clearInterval(interval);
+  }, [agentStatus, audioCapture, audioPlayback]);
+
+  useEffect(() => {
+    return () => {
+      audioCapture.stop();
+      audioPlayback.stop();
+      disconnect();
+    };
+  }, [audioCapture, audioPlayback, disconnect]);
 
   const handleStartConversation = useCallback(async () => {
     setStatus('connecting');
     setError(null);
 
-    try {
-      // Request microphone permission
-      await navigator.mediaDevices.getUserMedia({ audio: true });
-
-      // Get agent ID from env or props
-      const finalAgentId = agentId || import.meta.env.VITE_ELEVENLABS_AGENT_ID;
-
-      if (!finalAgentId) {
-        throw new Error('Agent ID not configured');
-      }
-
-      // Start conversation
-      await conversation.startSession({
-        agentId: finalAgentId,
-        connectionType: 'webrtc',
-      });
-    } catch (err) {
-      const message = err instanceof Error ? err.name : 'Unknown error';
-
-      // Handle specific errors
-      if (message === 'NotAllowedError') {
-        setError('Microphone access denied. Please allow microphone access to continue.');
-      } else if (message === 'NotFoundError') {
-        setError('No microphone found. Please connect a microphone.');
-      } else {
-        setError('Failed to start conversation. Please try again.');
-      }
-
+    if (!sessionId) {
+      setError('Session ID not configured');
       setStatus('disconnected');
+      return;
     }
-  }, [agentId, conversation]);
+
+    setActiveSessionId(sessionId);
+  }, [sessionId]);
 
   const handleEndConversation = useCallback(async () => {
     setStatus('disconnecting');
-    await conversation.endSession();
+    disconnect();
+    setActiveSessionId('');
     setStatus('disconnected');
-  }, [conversation]);
-
-  // Determine waveform mode based on conversation state
-  const getWaveformMode = (): 'speaking' | 'listening' | 'thinking' => {
-    if (!conversation.isSpeaking) return 'listening';
-    return 'speaking';
-  };
+  }, [disconnect]);
 
   return (
     <div className="flex flex-col items-center justify-center space-y-8 py-6">
       {/* Waveform Visualization */}
       <div className="w-full h-[280px] flex items-center justify-center">
         <AudioWaveform
-          conversation={status === 'connected' ? (conversation as any) : null}
-          mode={status === 'connected' ? getWaveformMode() : 'thinking'}
+          inputVolume={audioVolume.input}
+          outputVolume={audioVolume.output}
+          mode={status === 'connected' ? mode : 'thinking'}
+          isConnected={status === 'connected'}
         />
       </div>
 

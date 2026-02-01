@@ -417,7 +417,6 @@ export interface CheckDrillEligibilityResponse {
 // Drill session start
 export interface DrillSessionStartResponse {
   session_id: string;
-  signed_url: string;
   status: string;
   message: string;
   problem: {

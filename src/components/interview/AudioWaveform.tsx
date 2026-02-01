@@ -1,12 +1,18 @@
 import { useEffect, useState, useRef } from 'react';
-import type { Conversation } from '@elevenlabs/client';
 
 interface AudioWaveformProps {
-  conversation: Conversation | null;
+  inputVolume: number;
+  outputVolume: number;
   mode: 'speaking' | 'listening' | 'thinking';
+  isConnected: boolean;
 }
 
-export function AudioWaveform({ conversation, mode }: AudioWaveformProps) {
+export function AudioWaveform({
+  inputVolume,
+  outputVolume,
+  mode,
+  isConnected,
+}: AudioWaveformProps) {
   const [volume, setVolume] = useState(0.5);
   const [targetVolume, setTargetVolume] = useState(0.5);
   const [screenSize, setScreenSize] = useState({ min: 100, max: 180 });
@@ -53,48 +59,33 @@ export function AudioWaveform({ conversation, mode }: AudioWaveformProps) {
     return () => clearInterval(smoothingInterval);
   }, [targetVolume]);
 
-  // Poll volume levels
+  const shouldBreathe = !isConnected || mode === 'thinking';
+
+  // Breathing pattern when idle
   useEffect(() => {
-    if (!conversation) {
-      // Gentle breathing pattern at rest - like meditation apps
-      let breathingPhase = 0;
-      const breathingInterval = setInterval(() => {
-        if (!isMountedRef.current) return;
+    if (!shouldBreathe) return undefined;
 
-        breathingPhase += 0.015; // Very slow breathing
-        const breathingEffect = Math.sin(breathingPhase) * 0.2 + 0.5; // Oscillate between 0.3-0.7
-
-        setTargetVolume(breathingEffect);
-      }, 50);
-
-      return () => clearInterval(breathingInterval);
-    }
-
-    const interval = setInterval(async () => {
+    let breathingPhase = 0;
+    const breathingInterval = setInterval(() => {
       if (!isMountedRef.current) return;
 
-      try {
-        // Get appropriate volume based on mode
-        let vol = 0;
-        if (mode === 'listening') {
-          vol = await conversation.getInputVolume();
-        } else if (mode === 'speaking') {
-          vol = await conversation.getOutputVolume();
-        }
+      breathingPhase += 0.015; // Very slow breathing
+      const breathingEffect = Math.sin(breathingPhase) * 0.2 + 0.5; // Oscillate between 0.3-0.7
 
-        // Normalize volume with smooth power curve
-        const normalizedVolume = Math.min(1.0, Math.pow(vol || 0, 0.5) * 1.8);
+      setTargetVolume(breathingEffect);
+    }, 50);
 
-        if (isMountedRef.current) {
-          setTargetVolume(normalizedVolume);
-        }
-      } catch (error) {
-        console.error('Failed to get volume:', error);
-      }
-    }, 100);
+    return () => clearInterval(breathingInterval);
+  }, [shouldBreathe]);
 
-    return () => clearInterval(interval);
-  }, [conversation, mode]);
+  // Update target volume based on input/output levels
+  useEffect(() => {
+    if (shouldBreathe) return;
+
+    const rawVolume = mode === 'speaking' ? outputVolume : inputVolume;
+    const normalizedVolume = Math.min(1.0, Math.pow(rawVolume || 0, 0.5) * 1.8);
+    setTargetVolume(normalizedVolume);
+  }, [inputVolume, mode, outputVolume, shouldBreathe]);
 
   // Calculate circle size and opacity based on volume
   const isActive = mode === 'listening';

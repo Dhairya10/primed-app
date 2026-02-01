@@ -122,7 +122,7 @@ export function Interview() {
     console.log('Interview ended naturally:', reason);
     setStage('end');
 
-    // ElevenLabs handles upload via webhook - no action needed
+    // Backend handles session completion and transcript assembly
   };
 
   const handleEmergencyExit = async () => {
@@ -225,7 +225,7 @@ export function Interview() {
       if (sessionId) {
         localStorage.removeItem(`interview-lock-${sessionId}`);
         // ✅ DO NOT call abandonInterviewSession here
-        // Session is already completed via ElevenLabs webhook
+        // Session completion is handled by the backend voice pipeline
         // Calling abandon would incorrectly mark a completed session as abandoned
       }
 
@@ -274,9 +274,7 @@ export function Interview() {
       currentScreen = (
         <MainInterviewScreen
           problemTitle={sessionData.interview.title}
-          estimatedDurationMinutes={sessionData.interview.estimated_duration_minutes}
           sessionId={sessionData.session_id}
-          signedUrl={sessionData.signed_url}
           onNaturalEnd={handleInterviewEnd}
           onEmergencyExit={handleEmergencyExit}
           onError={handleError}
