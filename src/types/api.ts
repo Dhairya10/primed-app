@@ -40,6 +40,7 @@ export interface HomeScreenRecommendation {
     product_logo_url?: string;
   };
   session_count: number;
+  greeting: string;
 }
 
 export interface SkillTestedInfo {

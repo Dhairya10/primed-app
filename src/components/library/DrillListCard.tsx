@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Check } from 'lucide-react';
 import { checkDrillEligibility, startDrillSession } from '@/lib/api';
 import { useToastStore } from '@/lib/store';
+import { formatSkillName } from '@/lib/dashboard-utils';
 
 interface DrillListCardProps {
   drill: Drill;
@@ -66,7 +67,7 @@ export function DrillListCard({ drill, isCompleted = false }: DrillListCardProps
             />
           </div>
         )}
-        <h3 className="text-base font-semibold text-white flex-1 leading-tight">
+        <h3 className="text-sm font-normal text-white flex-1 leading-tight">
           {drill.display_title}
         </h3>
         {isCompleted && (
@@ -75,16 +76,12 @@ export function DrillListCard({ drill, isCompleted = false }: DrillListCardProps
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {drill.skills_tested && drill.skills_tested.length > 0 ? (
+        {drill.skills_tested && drill.skills_tested.length > 0 && (
           drill.skills_tested.map((skill) => (
             <Badge key={skill} variant="outline" size="sm">
-              {skill}
+              {formatSkillName(skill)}
             </Badge>
           ))
-        ) : (
-          <Badge variant="outline" size="sm">
-            {drill.problem_type}
-          </Badge>
         )}
       </div>
 

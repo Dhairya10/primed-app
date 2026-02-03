@@ -360,6 +360,10 @@ export async function getHomeScreenRecommendation(
 
   const drill = drillResponse.data;
 
+  // Debug skills mapping
+  console.log('API drill.skills:', drill.skills);
+  console.log('Mapped skills_tested:', drill.skills?.map((skill) => skill.name) ?? []);
+
   return {
     drill: {
       id: drill.id,
@@ -370,6 +374,7 @@ export async function getHomeScreenRecommendation(
       product_logo_url: drill.product_url ?? undefined,
     },
     session_count: greetingResponse.data.session_number,
+    greeting: greetingResponse.data.greeting,
   };
 }
 

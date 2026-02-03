@@ -30,3 +30,12 @@ export function formatAttemptTimestamp(isoDate: string): string {
     hour12: true
   }).format(date);
 }
+
+export function formatSkillName(skill: string): string {
+  return skill
+    .split('_')
+    .map(word =>
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    )
+    .join(' ');
+}
