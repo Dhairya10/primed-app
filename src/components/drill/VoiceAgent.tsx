@@ -182,7 +182,7 @@ export function VoiceAgent({ sessionId, onSessionEnd }: VoiceAgentProps) {
               aria-label="End interview"
               className="
                 min-h-[44px] min-w-[44px] p-3
-                bg-paper-50 text-ink-950
+                bg-paper-50 text-ink-950 border-2 border-ink-950
                 hover:bg-paper-200
                 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-ink-950 focus:ring-paper-50
                 transition-all duration-200
@@ -194,12 +194,6 @@ export function VoiceAgent({ sessionId, onSessionEnd }: VoiceAgentProps) {
           )}
         </div>
 
-        {/* Connection hint */}
-        {connectionStatus === 'connected' && (
-          <div className="text-center text-xs text-paper-400">
-            {isMuted ? 'Microphone muted' : 'Speak naturally'}
-          </div>
-        )}
       </div>
 
       {/* Exit Confirmation Dialog */}

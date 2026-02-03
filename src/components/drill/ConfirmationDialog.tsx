@@ -45,13 +45,13 @@ export function ConfirmationDialog({
     >
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-ink-950/80"
+        className="absolute inset-0 bg-ink-950/90"
         onClick={onCancel}
         aria-hidden="true"
       />
 
       {/* Dialog */}
-      <div className="relative w-full max-w-md bg-paper-50 p-6 shadow-xl">
+      <div className="relative w-full max-w-md bg-paper-50 p-6 border-2 border-ink-950 shadow-2xl">
         <h2
           id="dialog-title"
           className="text-xl font-bold text-ink-950 mb-2"

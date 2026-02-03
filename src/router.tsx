@@ -3,6 +3,9 @@ import {
   createRoute,
   createRouter,
   Outlet,
+  useNavigate,
+  useParams,
+  useRouterState,
 } from '@tanstack/react-router';
 import { Navigation } from '@/components/layout/Navigation';
 import { Footer } from '@/components/layout/Footer';
@@ -17,6 +20,7 @@ import { Library } from '@/pages/Library';
 import { SkillDetailScreen } from '@/pages/SkillDetailScreen';
 import { FeedbackScreen } from '@/pages/FeedbackScreen';
 import { DrillSession } from '@/pages/DrillSession';
+import { LoadingScreen } from '@/components/drill/LoadingScreen';
 import { Onboarding } from '@/pages/Onboarding';
 import { Login } from '@/pages/Login';
 import { Signup } from '@/pages/Signup';
@@ -66,9 +70,13 @@ const authenticatedLayout = createRoute({
   getParentRoute: () => rootRoute,
   id: 'authenticated',
   component: () => {
+    const pathname = useRouterState({
+      select: (state) => state.location.pathname,
+    });
+    const isDrillRoute = pathname.startsWith('/drill/');
     const content = (
       <div className="bg-black text-white min-h-screen">
-        <AppNavigation />
+        {!isDrillRoute && <AppNavigation />}
         <Outlet />
       </div>
     );
@@ -116,6 +124,23 @@ const drillSessionRoute = createRoute({
   getParentRoute: () => authenticatedLayout,
   path: '/drill/$sessionId',
   component: DrillSession,
+});
+
+const drillLoadingRoute = createRoute({
+  getParentRoute: () => authenticatedLayout,
+  path: '/drill/loading/$problemId',
+  component: () => {
+    const params = useParams({ strict: false });
+    const navigate = useNavigate();
+    const problemId = params.problemId as string;
+
+    return (
+      <LoadingScreen
+        problemId={problemId}
+        onCancel={() => navigate({ to: '/library' })}
+      />
+    );
+  },
 });
 
 const feedbackRoute = createRoute({
@@ -221,6 +246,7 @@ const routeTree = rootRoute.addChildren([
     profileRoute,
     libraryRoute,
     skillDetailRoute,
+    drillLoadingRoute,
     drillSessionRoute,
     feedbackRoute,
   ]),

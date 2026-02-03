@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Link } from '@tanstack/react-router';
 import { ArrowRight } from 'lucide-react';
 import { RecommendedDrillCard } from '@/components/home/RecommendedDrillCard';
-import { getHomeScreenRecommendation, startDrillSession } from '@/lib/api';
+import { getHomeScreenRecommendation } from '@/lib/api';
 import { DEFAULT_USER_ID } from '@/lib/constants';
 import type { HomeScreenRecommendation } from '@/types/api';
 
@@ -50,16 +50,9 @@ export function Home() {
     };
   }, [navigate]);
 
-  const handleDrillClick = async () => {
+  const handleDrillClick = () => {
     if (!data) return;
-
-    try {
-      const session = await startDrillSession(data.drill.id);
-      navigate({ to: `/drill/${session.session_id}` });
-    } catch (err) {
-      console.error('Failed to start drill:', err);
-      setError('Failed to start drill');
-    }
+    navigate({ to: `/drill/loading/${data.drill.id}` });
   };
 
   if (loading) {

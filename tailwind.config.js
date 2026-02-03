@@ -14,6 +14,13 @@ export default {
           700: '#262626',
           600: '#404040',
         },
+        'paper': {
+          50: '#ffffff',
+          100: '#fafafa',
+          200: '#f5f5f5',
+          300: '#e5e5e5',
+          400: '#d4d4d4',
+        },
       },
       animation: {
         'float': 'float 20s infinite linear',
