@@ -36,13 +36,14 @@ export const DEBOUNCE_DELAY = 300;
 export const PROBLEMS_PER_PAGE = 20;
 export const PREFETCH_THRESHOLD = 0.8;
 
+// COMMENTED OUT: Discipline selection removed from onboarding flow
 // Onboarding disciplines (domain categories removed - not in OpenAPI spec)
-export const ONBOARDING_DISCIPLINES: DisciplineType[] = [
-  'product',
-  'design',
-  'engineering',
-  'marketing',
-];
+// export const ONBOARDING_DISCIPLINES: DisciplineType[] = [
+//   'product',
+//   'design',
+//   'engineering',
+//   'marketing',
+// ];
 
 export const DISCIPLINE_LABELS: Record<DisciplineType, string> = {
   product: 'Product',

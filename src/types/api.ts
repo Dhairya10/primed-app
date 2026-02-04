@@ -199,7 +199,7 @@ export interface FeedbackDetailResponse {
 
 // User Profile Types
 export interface UserProfileRequest {
-  discipline: DisciplineType;
+  discipline?: DisciplineType; // Optional - backend defaults to 'product'
   first_name: string;
   last_name?: string;
   onboarding_completed?: boolean;
@@ -224,7 +224,7 @@ export interface UserProfileResponse {
 }
 
 export interface UserProfileUpdateResponse {
-  discipline: string;
+  discipline?: string; // Optional - backend defaults to 'product'
   first_name: string;
   last_name?: string;
   onboarding_completed: boolean;
