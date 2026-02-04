@@ -13,24 +13,14 @@ const FAQS: FAQ[] = [
       'Each interview session runs for 25-30 minutes, similar to actual screening rounds',
   },
   {
-    question: 'Can I practice the same interview multiple times?',
-    answer:
-      'Absolutely. Each interview has 5-10 unique problem scenarios, so you will get fresh challenges with every attempt',
-  },
-  {
     question: 'Is this a video interview or audio-only?',
     answer: 'Currently, all interviews are audio-only',
   },
   {
     question: 'When will I get my performance feedback?',
     answer:
-      'Your detailed evaluation is ready in just 1-2 minutes after completing the interview',
-  },
-  {
-    question: 'How much does Primed cost?',
-    answer:
-      "It's free. We are focused on making the best interview prep tool possible before thinking about monetization",
-  },
+      'Your detailed evaluation is ready in just 2 minutes after completing the interview',
+  }
 ];
 
 export function FAQSection() {

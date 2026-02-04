@@ -4,33 +4,33 @@ import { FeatureVisualization } from './FeatureVisualization';
 interface Feature {
   title: string;
   description: string;
-  visualization: 'feedback' | 'problems' | 'simulation' | 'instant';
+  visualization: 'feedback' | 'problems' | 'simulation' | 'instant' | 'skill-map';
 }
 
 const FEATURES: Feature[] = [
   {
-    title: 'Comprehensive Content',
+    title: 'Practice with a coach that pushes back',
     description:
-      'Simulate 100+ intervews from top companies around the globe',
-    visualization: 'problems',
-  },
-  {
-    title: 'Personalised Feedback',
-    description:
-      'Get in-depth and actionable feedback tailored to your goals',
-    visualization: 'feedback',
-  },
-  {
-    title: 'Simulate Real Interviews',
-    description:
-      'Familiarise yourself with the real interview process and build confidence',
+      'Real interviewers ask follow-ups, so does Primed. Get probing questions that challenge your reasoning',
     visualization: 'simulation',
   },
   {
-    title: 'Instant Access',
+    title: 'Get feedback without the fluff',
     description:
-      'Start any interview with 1 click and get instant feedback as soon as you finish',
-    visualization: 'instant',
+      'Honest, detailed evaluation of what worked and what did not. No sugarcoating, no bias.',
+    visualization: 'feedback',
+  },
+  {
+    title: 'Prep for top companies',
+    description:
+      '100+ interview scenarios from companies like Google, Netflix, Airbnb, and more.',
+    visualization: 'problems',
+  },
+  {
+    title: 'See yourself improve',
+    description:
+      'Track your progress across sessions. Know exactly where you stand.',
+    visualization: 'skill-map',
   },
 ];
 
@@ -71,10 +71,9 @@ export function FeaturesSection() {
               className={`
                 grid md:grid-cols-2 gap-8 md:gap-12 items-center
                 transition-all duration-1000
-                ${
-                  visibleFeatures.includes(index)
-                    ? 'opacity-100 translate-y-0'
-                    : 'opacity-0 translate-y-10'
+                ${visibleFeatures.includes(index)
+                  ? 'opacity-100 translate-y-0'
+                  : 'opacity-0 translate-y-10'
                 }
               `}
             >
