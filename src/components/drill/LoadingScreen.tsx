@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { checkDrillEligibility, startDrillSession } from '@/lib/api';
 
@@ -70,19 +70,27 @@ export function LoadingScreen({ problemId, onCancel }: LoadingScreenProps) {
     return () => window.clearInterval(interval);
   }, [status]);
 
+  const mountedRef = useRef(true);
+
   useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    mountedRef.current = true;
     if (status !== 'countdown' || countdown !== 0) return;
 
-    let isMounted = true;
     const startSession = async () => {
       setStatus('starting');
       try {
         const session = await startDrillSession(problemId);
-        if (isMounted) {
-          navigate({ to: `/drill/${session.session_id}` });
+        if (mountedRef.current) {
+          await navigate({ to: `/drill/${session.session_id}` });
         }
       } catch (err) {
-        if (isMounted) {
+        if (mountedRef.current) {
           setErrorMessage('Failed to start session. Please try again.');
           setStatus('error');
         }
@@ -90,10 +98,6 @@ export function LoadingScreen({ problemId, onCancel }: LoadingScreenProps) {
     };
 
     startSession();
-
-    return () => {
-      isMounted = false;
-    };
   }, [countdown, navigate, problemId, status]);
 
   const renderContent = () => {
@@ -120,7 +124,7 @@ export function LoadingScreen({ problemId, onCancel }: LoadingScreenProps) {
           <div className="flex items-center justify-center">
             <div className="w-10 h-10 border-2 border-paper-300 border-t-paper-50 animate-spin" />
           </div>
-          <p className="text-base text-paper-200">Connecting to server...</p>
+          <p className="text-base text-paper-200">Setting up your session...</p>
         </div>
       );
     }

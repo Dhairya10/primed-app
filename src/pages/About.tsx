@@ -21,7 +21,7 @@ export function About() {
             </p>
 
             <p>
-              My aim is simple - to <strong className="text-white">improve the odds</strong> for anyone preparing for interviews. I went through this struggle myself, and I know how frustrating it is when you can't get quality practice. That gap between knowing your stuff and articulating it clearly? That's what we are fixing at Primed.
+              My aim is simple, to <strong className="text-white">improve the odds</strong> for anyone preparing for interviews. I went through this struggle myself, and I know how frustrating it is when you can't get quality practice. That gap between knowing your stuff and articulating it clearly? That's what we are fixing at Primed.
             </p>
 
             <div className="pt-4 md:pt-6">
