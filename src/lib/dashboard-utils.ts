@@ -32,8 +32,9 @@ export function formatAttemptTimestamp(isoDate: string): string {
 }
 
 export function formatSkillName(skill: string): string {
+  // Handle both underscore-separated (problem_scoping) and space-separated (problem scoping) formats
   return skill
-    .split('_')
+    .split(/[_\s]+/) // Split on underscores or spaces
     .map(word =>
       word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
     )

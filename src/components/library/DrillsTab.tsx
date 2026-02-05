@@ -6,7 +6,6 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { getLibraryDrills, getLibraryMetadata } from '@/lib/api';
 import { Search, Filter } from 'lucide-react';
 import { useClickOutside } from '@/hooks/useClickOutside';
-import { formatSkillName } from '@/lib/dashboard-utils';
 
 const ITEMS_PER_PAGE = 15;
 
@@ -282,7 +281,7 @@ export function DrillsTab() {
                   <option value="">All</option>
                   {availableSkills.map((skill) => (
                     <option key={skill} value={skill}>
-                      {formatSkillName(skill)}
+                      {skill}
                     </option>
                   ))}
                 </select>

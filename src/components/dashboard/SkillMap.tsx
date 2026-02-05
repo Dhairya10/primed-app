@@ -21,7 +21,7 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
   if (isLoading) {
     return (
       <div className={`border border-white/10 p-6 ${className}`}>
-        <h2 className="text-xl font-bold text-white mb-4">Your Skill Map</h2>
+        <h2 className="text-xl font-bold text-white mb-4">Skill Map</h2>
         <div className="h-64 bg-white/5 animate-pulse" />
       </div>
     );
@@ -30,7 +30,7 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
   if (error || !data) {
     return (
       <div className={`border border-white/10 p-6 ${className}`}>
-        <h2 className="text-xl font-bold text-white mb-4">Your Skill Map</h2>
+        <h2 className="text-xl font-bold text-white mb-4">Skill Map</h2>
         <p className="text-white/60 text-sm">Failed to load skills</p>
       </div>
     );
@@ -84,7 +84,7 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
   return (
     <div className={`border border-white/10 p-0 ${className}`}>
       <div className="flex items-center justify-between p-6 pb-4">
-        <h2 className="text-xl font-bold text-white">Your Skill Map</h2>
+        <h2 className="text-xl font-bold text-white">Skill Map</h2>
         <p className="text-sm text-white/60">
           {data.total_sessions} session{data.total_sessions !== 1 ? 's' : ''}
         </p>
@@ -98,9 +98,6 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
             minHeight: '200px',
           }}
         >
-          <h3 className="text-xs font-semibold text-white/60 mb-3">
-            Needs Work (0-1)
-          </h3>
           <div className="space-y-3">
             {skillsByZone.red.map((skill) => (
               <button
@@ -134,9 +131,6 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
             minHeight: '200px',
           }}
         >
-          <h3 className="text-xs font-semibold text-white/60 mb-3">
-            Developing (2-4)
-          </h3>
           <div className="space-y-3">
             {skillsByZone.yellow.map((skill) => (
               <button
@@ -170,9 +164,6 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
             minHeight: '200px',
           }}
         >
-          <h3 className="text-xs font-semibold text-white/60 mb-3">
-            Strong (5+)
-          </h3>
           <div className="space-y-3">
             {skillsByZone.green.map((skill) => (
               <button

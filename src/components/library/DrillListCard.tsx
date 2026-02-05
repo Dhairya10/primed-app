@@ -2,7 +2,6 @@ import { useNavigate } from '@tanstack/react-router';
 import type { Drill } from '@/types/api';
 import { Badge } from '@/components/ui/Badge';
 import { Check } from 'lucide-react';
-import { formatSkillName } from '@/lib/dashboard-utils';
 
 interface DrillListCardProps {
   drill: Drill;
@@ -44,7 +43,7 @@ export function DrillListCard({ drill, isCompleted = false }: DrillListCardProps
         {drill.skills_tested && drill.skills_tested.length > 0 && (
           drill.skills_tested.map((skill) => (
             <Badge key={skill} variant="outline" size="sm">
-              {formatSkillName(skill)}
+              {skill}
             </Badge>
           ))
         )}
