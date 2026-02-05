@@ -20,9 +20,9 @@ export function DrillListCard({ drill, isCompleted = false }: DrillListCardProps
     <button
       type="button"
       onClick={handleDrillClick}
-      className="relative w-full p-4 border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all duration-200 text-left group"
+      className="relative w-full h-full min-h-[140px] p-5 border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all duration-200 text-left group flex flex-col"
     >
-      <div className="flex items-start gap-3 mb-3">
+      <div className="flex items-start gap-3 flex-1">
         {drill.product_logo_url && (
           <div className="w-10 h-10 rounded border border-white/10 bg-white/5 flex items-center justify-center flex-shrink-0">
             <img
@@ -40,7 +40,7 @@ export function DrillListCard({ drill, isCompleted = false }: DrillListCardProps
         )}
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 mt-3">
         {drill.skills_tested && drill.skills_tested.length > 0 && (
           drill.skills_tested.map((skill) => (
             <Badge key={skill} variant="outline" size="sm">
@@ -49,7 +49,6 @@ export function DrillListCard({ drill, isCompleted = false }: DrillListCardProps
           ))
         )}
       </div>
-
     </button>
   );
 }

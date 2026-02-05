@@ -8,7 +8,7 @@ import { Search, Filter } from 'lucide-react';
 import { useClickOutside } from '@/hooks/useClickOutside';
 import { formatSkillName } from '@/lib/dashboard-utils';
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 15;
 
 // Debounce utility
 function debounce<Args extends unknown[]>(
@@ -219,9 +219,8 @@ export function DrillsTab() {
         <div ref={filterDropdownRef} className="relative">
           <button
             onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className={`flex items-center justify-center gap-2 h-12 px-4 bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/20 transition-all duration-200 ${
-              hasActiveFilters ? 'border-white/30' : ''
-            }`}
+            className={`flex items-center justify-center gap-2 h-12 px-4 bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/20 transition-all duration-200 ${hasActiveFilters ? 'border-white/30' : ''
+              }`}
             aria-label="Filter drills"
           >
             <Filter className="w-5 h-5" />
