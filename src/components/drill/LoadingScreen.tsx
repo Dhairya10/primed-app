@@ -16,7 +16,6 @@ export function LoadingScreen({ problemId, onCancel }: LoadingScreenProps) {
   const [status, setStatus] = useState<LoadingStatus>('checking');
   const [countdown, setCountdown] = useState(COUNTDOWN_START);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [eligibilityMessage, setEligibilityMessage] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -26,8 +25,6 @@ export function LoadingScreen({ problemId, onCancel }: LoadingScreenProps) {
       try {
         const eligibility = await checkDrillEligibility();
         if (!isMounted) return;
-
-        setEligibilityMessage(eligibility.message || null);
 
         if (!eligibility.eligible) {
           setErrorMessage(
@@ -87,7 +84,7 @@ export function LoadingScreen({ problemId, onCancel }: LoadingScreenProps) {
       try {
         const session = await startDrillSession(problemId);
         if (mountedRef.current) {
-          await navigate({ to: `/drill/${session.session_id}` });
+          await navigate({ to: `/drill/${session.session_id}`, replace: true });
         }
       } catch (err) {
         if (mountedRef.current) {
@@ -141,7 +138,7 @@ export function LoadingScreen({ problemId, onCancel }: LoadingScreenProps) {
     }
 
     return (
-      <div className="space-y-8 text-center">
+      <div className="space-y-12 text-center">
         <div className="space-y-2">
           <p className="text-sm uppercase tracking-[0.2em] text-paper-300">
             Get ready
@@ -149,11 +146,6 @@ export function LoadingScreen({ problemId, onCancel }: LoadingScreenProps) {
           <h1 className="text-4xl font-semibold text-paper-50">
             Let&apos;s do this
           </h1>
-          {eligibilityMessage && (
-            <p className="text-sm text-paper-300">
-              {eligibilityMessage}
-            </p>
-          )}
         </div>
 
         <div className="flex items-center justify-center">

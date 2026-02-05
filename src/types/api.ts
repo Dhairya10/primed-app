@@ -278,6 +278,7 @@ export interface DashboardSession {
   product_logo_url: string | null;
   completed_at: string;
   problem_type: ProblemType | null;
+  has_feedback: boolean;
 }
 
 export interface DashboardSessionsResponse {

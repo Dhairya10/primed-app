@@ -61,6 +61,7 @@ export function getDummyDashboardDrills(params: {
     product_logo_url: string | null;
     completed_at: string;
     problem_type: import('@/types/api').ProblemType | null;
+    has_feedback: boolean;
   }>;
   total: number;
 } {
@@ -72,6 +73,7 @@ export function getDummyDashboardDrills(params: {
       product_logo_url: 'https://api.dicebear.com/7.x/initials/svg?seed=FT',
       completed_at: new Date(Date.now() - 86400000).toISOString(),
       problem_type: 'product_design' as import('@/types/api').ProblemType,
+      has_feedback: true,
     },
     {
       session_id: 'session-2',
@@ -80,6 +82,7 @@ export function getDummyDashboardDrills(params: {
       product_logo_url: null,
       completed_at: new Date(Date.now() - 172800000).toISOString(),
       problem_type: 'metrics' as import('@/types/api').ProblemType,
+      has_feedback: true,
     },
     {
       session_id: 'session-3',
@@ -88,6 +91,7 @@ export function getDummyDashboardDrills(params: {
       product_logo_url: 'https://api.dicebear.com/7.x/initials/svg?seed=MS',
       completed_at: new Date(Date.now() - 259200000).toISOString(),
       problem_type: 'guesstimation' as import('@/types/api').ProblemType,
+      has_feedback: false,
     },
   ];
 

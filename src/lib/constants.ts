@@ -4,6 +4,9 @@ export const IS_ONBOARDING_ENABLED = false; // Set to false to skip onboarding
 export const IS_AUTH_ENABLED = true; // Set to true when auth is ready (requires Supabase config)
 export const DEFAULT_USER_ID = '';
 
+// Business rules
+export const MIN_FEEDBACK_DURATION_MINUTES = 2; // Minimum session duration for feedback generation
+
 // API endpoint for local testing (use localhost to avoid ad blocker issues)
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 

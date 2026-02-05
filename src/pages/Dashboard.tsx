@@ -5,7 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import { SkillMap } from '@/components/dashboard/SkillMap';
 import { getDashboardDrills } from '@/lib/api';
 import { formatProblemType, formatAttemptTimestamp } from '@/lib/dashboard-utils';
-import { DEFAULT_USER_ID } from '@/lib/constants';
+import { DEFAULT_USER_ID, MIN_FEEDBACK_DURATION_MINUTES } from '@/lib/constants';
 import type { DashboardSession } from '@/types/api';
 
 function SessionsList({ onViewFeedback }: { onViewFeedback: (sessionId: string) => void }) {
@@ -55,8 +55,11 @@ function SessionsList({ onViewFeedback }: { onViewFeedback: (sessionId: string) 
       {data.data.map((session: DashboardSession) => (
         <div
           key={session.session_id}
-          onClick={() => onViewFeedback(session.session_id)}
-          className="p-6 border-2 border-white/20 bg-white/5 cursor-pointer hover:border-white/40 hover:bg-white/10 transition-all"
+          onClick={() => session.has_feedback && onViewFeedback(session.session_id)}
+          className={`p-6 border-2 transition-all ${session.has_feedback
+            ? 'border-white/20 bg-white/5 cursor-pointer hover:border-white/40 hover:bg-white/10'
+            : 'border-white/10 bg-white/[0.02] cursor-default opacity-60'
+            }`}
         >
           <div className="flex items-start justify-between mb-2">
             <h3 className="text-xl font-semibold text-white flex-1">
@@ -77,6 +80,26 @@ function SessionsList({ onViewFeedback }: { onViewFeedback: (sessionId: string) 
               <>
                 <span>•</span>
                 <span>{formatProblemType(session.problem_type)}</span>
+              </>
+            )}
+            {!session.has_feedback && (
+              <>
+                <span>•</span>
+                <span className="inline-flex items-center gap-1.5 text-gray-500">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 16 16"
+                    fill="currentColor"
+                    className="w-3.5 h-3.5"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M15 8A7 7 0 1 1 1 8a7 7 0 0 1 14 0ZM9 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM6.75 8a.75.75 0 0 0 0 1.5h.75v1.75a.75.75 0 0 0 1.5 0v-2.5A.75.75 0 0 0 8.25 8h-1.5Z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Feedback not available (call &lt; {MIN_FEEDBACK_DURATION_MINUTES} mins)
+                </span>
               </>
             )}
           </div>

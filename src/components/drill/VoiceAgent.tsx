@@ -167,7 +167,7 @@ export function VoiceAgent({ sessionId, onSessionEnd }: VoiceAgentProps) {
 
       {/* Controls: Mute + End Call */}
       <div className="p-6 space-y-4">
-        <div className="flex items-center justify-center space-x-4">
+        <div className="flex items-center justify-center space-x-12">
           {/* Mute Button */}
           <MicrophoneButton
             isMuted={isMuted}
@@ -200,7 +200,7 @@ export function VoiceAgent({ sessionId, onSessionEnd }: VoiceAgentProps) {
       <ConfirmationDialog
         isOpen={showExitDialog}
         title="End Interview?"
-        message="Are you sure you want to end this interview? Your progress will be saved."
+        message="Are you sure you want to end this interview? Your progress will not be saved."
         onConfirm={handleEndInterview}
         onCancel={() => setShowExitDialog(false)}
       />
