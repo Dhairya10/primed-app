@@ -145,6 +145,20 @@ export function DrillsTab() {
     }
   };
 
+
+  const getSkillName = (id: string) => {
+    return availableSkills.find((s) => s.id === id)?.name || id;
+  };
+
+  const handleClearFilters = () => {
+    setSelectedProblemType(undefined);
+    setShowOnlyUnattempted(false);
+    setSelectedSkill(undefined);
+    setOffset(0);
+    setDrills([]);
+    navigate({ to: '/library', search: {} });
+  };
+
   // Format problem type for display
   const formatProblemType = (type: ProblemType) => {
     return type
@@ -192,6 +206,7 @@ export function DrillsTab() {
   return (
     <div className="space-y-6">
       {/* Search Bar and Filter */}
+
       <div className="flex gap-3">
         {/* Search */}
         <div className="relative flex-1">
@@ -290,6 +305,63 @@ export function DrillsTab() {
           )}
         </div>
       </div>
+
+      {/* Active Filters Display */}
+      {hasActiveFilters && (
+        <div className="flex flex-wrap gap-2 items-center">
+          {showOnlyUnattempted && (
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-full text-xs text-white border border-white/10">
+              <span>Unattempted Only</span>
+              <button
+                onClick={() => {
+                  setShowOnlyUnattempted(false);
+                  setOffset(0);
+                  setDrills([]);
+                }}
+                className="hover:text-white/60"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          {selectedProblemType && (
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-full text-xs text-white border border-white/10">
+              <span>{formatProblemType(selectedProblemType)}</span>
+              <button
+                onClick={() => handleFilterChange(undefined)}
+                className="hover:text-white/60"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          {selectedSkill && (
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-full text-xs text-white border border-white/10">
+              <span>{getSkillName(selectedSkill)}</span>
+              <button
+                onClick={() => {
+                  setSelectedSkill(undefined);
+                  setOffset(0);
+                  setDrills([]);
+                  navigate({ to: '/library', search: {} });
+                }}
+                className="hover:text-white/60"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          <button
+            onClick={handleClearFilters}
+            className="text-xs text-white/50 hover:text-white transition-colors underline ml-1"
+          >
+            Clear All
+          </button>
+        </div>
+      )}
 
       {/* Results count */}
       {drills.length > 0 && (
