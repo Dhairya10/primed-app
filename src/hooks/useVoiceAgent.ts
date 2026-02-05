@@ -35,7 +35,7 @@ export function useVoiceAgent(config: VoiceAgentConfig) {
   const [error, setError] = useState<Error | null>(null);
 
   const wsRef = useRef<WebSocket | null>(null);
-  const connectRef = useRef<() => void>(() => {});
+  const connectRef = useRef<() => void>(() => { });
   const reconnectAttemptRef = useRef(0);
   const reconnectTimeoutRef = useRef<number | null>(null);
   const shouldReconnectRef = useRef(true);
@@ -194,6 +194,8 @@ export function useVoiceAgent(config: VoiceAgentConfig) {
       reconnectAttemptRef.current = 0;
       setError(null);
       setConnectionStatus('connected');
+      // Trigger agent to speak first
+      ws.send(JSON.stringify({ type: 'session_start' }));
       onConnectedRef.current?.();
     };
 
