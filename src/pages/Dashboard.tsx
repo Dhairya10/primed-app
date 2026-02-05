@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { SkillMap } from '@/components/dashboard/SkillMap';
 import { getDashboardDrills } from '@/lib/api';
-import { formatProblemType, formatAttemptTimestamp } from '@/lib/dashboard-utils';
+import { formatAttemptTimestamp } from '@/lib/dashboard-utils';
 import { DEFAULT_USER_ID, MIN_FEEDBACK_DURATION_MINUTES } from '@/lib/constants';
 import type { DashboardSession } from '@/types/api';
 
@@ -76,12 +76,7 @@ function SessionsList({ onViewFeedback }: { onViewFeedback: (sessionId: string) 
 
           <div className="flex items-center gap-4 text-sm text-gray-400">
             <span>{formatAttemptTimestamp(session.completed_at)}</span>
-            {session.problem_type && (
-              <>
-                <span>•</span>
-                <span>{formatProblemType(session.problem_type)}</span>
-              </>
-            )}
+
             {!session.has_feedback && (
               <>
                 <span>•</span>
@@ -98,7 +93,7 @@ function SessionsList({ onViewFeedback }: { onViewFeedback: (sessionId: string) 
                       clipRule="evenodd"
                     />
                   </svg>
-                  Feedback not available (call &lt; {MIN_FEEDBACK_DURATION_MINUTES} mins)
+                  Feedback not available (session duration &lt; {MIN_FEEDBACK_DURATION_MINUTES} mins)
                 </span>
               </>
             )}
@@ -107,12 +102,14 @@ function SessionsList({ onViewFeedback }: { onViewFeedback: (sessionId: string) 
       ))}
 
       {data.total > offset + limit && (
-        <button
-          onClick={() => setOffset(offset + limit)}
-          className="w-full p-4 border-2 border-white/20 bg-white/5 hover:border-white/40 hover:bg-white/10 transition-all text-white"
-        >
-          Load More
-        </button>
+        <div className="flex justify-center pt-4">
+          <button
+            onClick={() => setOffset(offset + limit)}
+            className="px-6 py-3 bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
+          >
+            Load More
+          </button>
+        </div>
       )}
     </div>
   );
@@ -148,7 +145,7 @@ export function Dashboard() {
         <SkillMap userId={DEFAULT_USER_ID} className="mb-8" />
 
         <div className="mb-4">
-          <h2 className="text-2xl font-bold text-white">Recent Sessions</h2>
+          <h2 className="text-2xl font-bold text-white">Past Sessions</h2>
         </div>
 
         <SessionsList onViewFeedback={(sessionId) => navigate({ to: `/feedback/${sessionId}` })} />

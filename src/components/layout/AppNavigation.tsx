@@ -110,7 +110,7 @@ export function AppNavigation() {
                 {isAvatarDropdownOpen && (
                   <div ref={desktopDropdownRef} className="absolute right-0 top-full mt-2 w-48 bg-black border border-white/20 shadow-xl z-[60]">
                     <div className="w-full px-4 py-3 text-left text-sm text-white/80 border-b border-white/10">
-                      Credits: {profileData?.num_interviews ?? 0}
+                      Credits: {profileData?.num_drills_left ?? 0}
                     </div>
                     <button
                       onClick={handleAccountClick}
@@ -147,7 +147,7 @@ export function AppNavigation() {
                 {isAvatarDropdownOpen && (
                   <div ref={mobileDropdownRef} className="absolute right-0 top-full mt-2 w-48 bg-black border border-white/20 shadow-xl z-[60]">
                     <div className="w-full px-4 py-3 text-left text-sm text-white/80 border-b border-white/10">
-                      Credits: {profileData?.num_interviews ?? 0}
+                      Credits: {profileData?.num_drills_left ?? 0}
                     </div>
                     <button
                       onClick={handleAccountClick}

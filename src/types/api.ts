@@ -235,8 +235,7 @@ export interface ProfileScreenResponse {
   first_name: string | null;
   last_name: string | null;
   email: string;
-  num_interviews: number;
-  num_drills: number;
+  num_drills_left: number;
   discipline: string | null;
 }
 

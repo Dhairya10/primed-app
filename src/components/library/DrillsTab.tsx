@@ -310,7 +310,7 @@ export function DrillsTab() {
       {hasActiveFilters && (
         <div className="flex flex-wrap gap-2 items-center">
           {showOnlyUnattempted && (
-            <div className="flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-full text-xs text-white border border-white/10">
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-white/10 text-xs text-white border border-white/10">
               <span>Unattempted Only</span>
               <button
                 onClick={() => {
@@ -326,7 +326,7 @@ export function DrillsTab() {
           )}
 
           {selectedProblemType && (
-            <div className="flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-full text-xs text-white border border-white/10">
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-white/10 text-xs text-white border border-white/10">
               <span>{formatProblemType(selectedProblemType)}</span>
               <button
                 onClick={() => handleFilterChange(undefined)}
@@ -338,7 +338,7 @@ export function DrillsTab() {
           )}
 
           {selectedSkill && (
-            <div className="flex items-center gap-1.5 px-3 py-1 bg-white/10 rounded-full text-xs text-white border border-white/10">
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-white/10 text-xs text-white border border-white/10">
               <span>{getSkillName(selectedSkill)}</span>
               <button
                 onClick={() => {

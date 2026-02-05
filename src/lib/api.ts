@@ -333,8 +333,7 @@ export async function getProfileScreen(): Promise<ProfileScreenResponse> {
       first_name: 'John',
       last_name: 'Doe',
       email: 'john.doe@example.com',
-      num_interviews: 5,
-      num_drills: 5,
+      num_drills_left: 5,
       discipline: 'product',
     };
   }
