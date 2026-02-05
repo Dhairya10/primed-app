@@ -742,7 +742,7 @@ export async function getLibraryDrills(params: {
   const searchParams = new URLSearchParams();
   if (params.query) searchParams.set('query', params.query);
   if (params.problem_type) searchParams.set('problem_type', params.problem_type);
-  if (params.skill) searchParams.set('skill', params.skill);
+  if (params.skill) searchParams.set('skills', params.skill);
   if (params.unattempted_only) searchParams.set('unattempted_only', 'true');
   if (params.limit) searchParams.set('limit', params.limit.toString());
   if (params.offset) searchParams.set('offset', params.offset.toString());
@@ -789,7 +789,13 @@ export async function getLibraryMetadata(): Promise<SingleResponse<LibraryMetada
           'product_improvement',
           'product_strategy',
         ],
-        skills: [],
+        skills: [
+          { id: 'skill-1', name: 'Product Sense' },
+          { id: 'skill-2', name: 'Analytical Thinking' },
+          { id: 'skill-3', name: 'Technical Literacy' },
+          { id: 'skill-4', name: 'Leadership' },
+          { id: 'skill-5', name: 'Communication' },
+        ],
       },
     };
   }

@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
 import { getUserSkills } from '@/lib/api';
@@ -11,7 +10,6 @@ interface SkillMapProps {
 
 export function SkillMap({ userId, className = '' }: SkillMapProps) {
   const navigate = useNavigate();
-  const [hoveredSkill, setHoveredSkill] = useState<string | null>(null);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['user-skills', userId],
@@ -94,7 +92,7 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
         <div
           className={`p-4 ${getZoneBg('red')}`}
           style={{
-            flex: Math.max(1, skillsByZone.red.length),
+            flex: 1,
             minHeight: '200px',
           }}
         >
@@ -103,22 +101,15 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
               <button
                 key={skill.id}
                 onClick={() => handleSkillClick(skill)}
-                onMouseEnter={() => setHoveredSkill(skill.id)}
-                onMouseLeave={() => setHoveredSkill(null)}
                 className="w-full text-left group relative min-h-[44px]"
                 type="button"
               >
                 <div className="flex items-center gap-2">
                   <div className={`w-3 h-3 ${getDotColor('red')} flex-shrink-0`} />
-                  <span className="text-sm text-white/90 truncate hidden sm:block">
+                  <span className="text-xs text-white/90 truncate hidden sm:block">
                     {skill.skill_name}
                   </span>
                 </div>
-                {hoveredSkill === skill.id && (
-                  <div className="absolute left-0 top-full mt-1 p-2 bg-black border border-white/20 text-xs text-white/70 z-10 w-48">
-                    {skill.skill_description}
-                  </div>
-                )}
               </button>
             ))}
           </div>
@@ -127,7 +118,7 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
         <div
           className={`p-4 ${getZoneBg('yellow')}`}
           style={{
-            flex: Math.max(1, skillsByZone.yellow.length),
+            flex: 1,
             minHeight: '200px',
           }}
         >
@@ -136,22 +127,15 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
               <button
                 key={skill.id}
                 onClick={() => handleSkillClick(skill)}
-                onMouseEnter={() => setHoveredSkill(skill.id)}
-                onMouseLeave={() => setHoveredSkill(null)}
                 className="w-full text-left group relative min-h-[44px]"
                 type="button"
               >
                 <div className="flex items-center gap-2">
                   <div className={`w-3 h-3 ${getDotColor('yellow')} flex-shrink-0`} />
-                  <span className="text-sm text-white/90 truncate hidden sm:block">
+                  <span className="text-xs text-white/90 truncate hidden sm:block">
                     {skill.skill_name}
                   </span>
                 </div>
-                {hoveredSkill === skill.id && (
-                  <div className="absolute left-0 top-full mt-1 p-2 bg-black border border-white/20 text-xs text-white/70 z-10 w-48">
-                    {skill.skill_description}
-                  </div>
-                )}
               </button>
             ))}
           </div>
@@ -160,7 +144,7 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
         <div
           className={`p-4 ${getZoneBg('green')}`}
           style={{
-            flex: Math.max(1, skillsByZone.green.length),
+            flex: 1,
             minHeight: '200px',
           }}
         >
@@ -169,22 +153,15 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
               <button
                 key={skill.id}
                 onClick={() => handleSkillClick(skill)}
-                onMouseEnter={() => setHoveredSkill(skill.id)}
-                onMouseLeave={() => setHoveredSkill(null)}
                 className="w-full text-left group relative min-h-[44px]"
                 type="button"
               >
                 <div className="flex items-center gap-2">
                   <div className={`w-3 h-3 ${getDotColor('green')} flex-shrink-0`} />
-                  <span className="text-sm text-white/90 truncate hidden sm:block">
+                  <span className="text-xs text-white/90 truncate hidden sm:block">
                     {skill.skill_name}
                   </span>
                 </div>
-                {hoveredSkill === skill.id && (
-                  <div className="absolute left-0 top-full mt-1 p-2 bg-black border border-white/20 text-xs text-white/70 z-10 w-48">
-                    {skill.skill_description}
-                  </div>
-                )}
               </button>
             ))}
           </div>
@@ -201,22 +178,15 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
               <button
                 key={skill.id}
                 onClick={() => handleSkillClick(skill)}
-                onMouseEnter={() => setHoveredSkill(skill.id)}
-                onMouseLeave={() => setHoveredSkill(null)}
                 className="group relative min-h-[44px]"
                 type="button"
               >
                 <div className="flex items-center gap-2">
                   <div className={`w-3 h-3 ${getDotColor('untested')} flex-shrink-0`} />
-                  <span className="text-sm text-white/70 hidden sm:inline">
+                  <span className="text-xs text-white/70 hidden sm:inline">
                     {skill.skill_name}
                   </span>
                 </div>
-                {hoveredSkill === skill.id && (
-                  <div className="absolute left-0 top-full mt-1 p-2 bg-black border border-white/20 text-xs text-white/70 z-10 w-48">
-                    {skill.skill_description}
-                  </div>
-                )}
               </button>
             ))}
           </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useSearch, useNavigate } from '@tanstack/react-router';
-import type { Drill, ProblemType } from '@/types/api';
+import type { Drill, ProblemType, SkillSimple } from '@/types/api';
 import { DrillListCard } from './DrillListCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { getLibraryDrills, getLibraryMetadata } from '@/lib/api';
@@ -34,7 +34,7 @@ export function DrillsTab() {
   const [offset, setOffset] = useState(0);
   const [selectedProblemType, setSelectedProblemType] = useState<ProblemType | undefined>();
   const [selectedSkill, setSelectedSkill] = useState<string | undefined>(search.skill);
-  const [availableSkills, setAvailableSkills] = useState<string[]>([]);
+  const [availableSkills, setAvailableSkills] = useState<SkillSimple[]>([]);
   const [showOnlyUnattempted, setShowOnlyUnattempted] = useState(false);
   const [availableProblemTypes, setAvailableProblemTypes] = useState<ProblemType[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -280,8 +280,8 @@ export function DrillsTab() {
                 >
                   <option value="">All</option>
                   {availableSkills.map((skill) => (
-                    <option key={skill} value={skill}>
-                      {skill}
+                    <option key={skill.id} value={skill.id}>
+                      {skill.name}
                     </option>
                   ))}
                 </select>

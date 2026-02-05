@@ -135,7 +135,7 @@ export function SkillDetailScreen() {
             search={{ skill: data.skill_name }}
             className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors"
           >
-            Want to try another drill? View drills
+            Want to try another one? View drills
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

@@ -241,9 +241,14 @@ export interface ProfileScreenResponse {
 }
 
 // Library metadata
+export interface SkillSimple {
+  id: string;
+  name: string;
+}
+
 export interface LibraryMetadata {
   problem_types: ProblemType[];
-  skills: string[];
+  skills: SkillSimple[];
 }
 
 // Drill eligibility check
