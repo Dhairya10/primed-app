@@ -26,11 +26,7 @@ export function Home() {
         setData(recommendation);
         setGreeting(recommendation.greeting);
 
-        // Debug logs
-        console.log('Greeting from API:', recommendation.greeting);
-        console.log('Session count:', recommendation.session_count);
-        console.log('Drill skills:', recommendation.drill.skills_tested);
-        console.log('Skills count:', recommendation.drill.skills_tested.length);
+
       } catch (err) {
         console.error(err);
         if (isMounted) {

@@ -9,7 +9,7 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
       scope: '/',
     });
 
-    console.log('Service Worker registered:', registration.scope);
+
 
     // Handle updates
     registration.addEventListener('updatefound', () => {
@@ -18,7 +18,7 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
             // New service worker available, prompt to update
-            console.log('New Service Worker available');
+
             newWorker.postMessage('SKIP_WAITING');
           }
         });

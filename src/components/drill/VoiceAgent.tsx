@@ -32,19 +32,19 @@ export function VoiceAgent({ sessionId, onSessionEnd }: VoiceAgentProps) {
     sessionId,
     authToken: session?.access_token,
     onConnected: () => {
-      console.log('WebSocket connected');
+
       setStartTime(new Date());
       startAudioCapture();
     },
     onDisconnected: () => {
-      console.log('WebSocket disconnected');
+
       stopAudioCapture();
     },
     onAudioReceived: (data, mimeType) => {
       audioPlaybackRef.current?.playAudio(data, mimeType);
     },
-    onTranscript: (role, text) => {
-      console.log(`${role}: ${text}`);
+    onTranscript: (_role, _text) => {
+
     },
     onError: (err) => {
       console.error('Voice agent error:', err);

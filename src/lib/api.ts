@@ -204,7 +204,7 @@ export async function abandonDrillSession(
   if (!IS_API_ENABLED) {
     await new Promise((resolve) => setTimeout(resolve, 300));
     if (feedback) {
-      console.log('Exit feedback (dummy mode):', feedback);
+
     }
     return {
       session_id: sessionId,
@@ -241,7 +241,7 @@ export async function updateUserProfile(
   if (!IS_API_ENABLED) {
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 600));
-    console.log('User profile updated (dummy):', profileData);
+
 
     // Store in localStorage for dummy mode
     localStorage.setItem(
@@ -359,9 +359,7 @@ export async function getHomeScreenRecommendation(
 
   const drill = drillResponse.data;
 
-  // Debug skills mapping
-  console.log('API drill.skills:', drill.skills);
-  console.log('Mapped skills_tested:', drill.skills?.map((skill) => skill.name) ?? []);
+
 
   return {
     drill: {
