@@ -18,8 +18,6 @@ const signupSchema = z.object({
     .regex(/[a-z]/, 'Must contain at least one lowercase letter')
     .regex(/[0-9]/, 'Must contain at least one number'),
   confirmPassword: z.string(),
-  acceptTerms: z.boolean()
-    .refine(val => val === true, 'You must accept the terms'),
 }).refine(data => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ['confirmPassword'],
@@ -190,28 +188,8 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
           })}
         />
 
-        <div className="flex items-start gap-2">
-          <input
-            id="acceptTerms"
-            type="checkbox"
-            className="mt-1 w-4 h-4 border-2 border-white/30 rounded focus:ring-2 focus:ring-white/30 touch-manipulation accent-white bg-white/10"
-            disabled={isLoading || isGoogleLoading}
-            {...register('acceptTerms')}
-          />
-          <label htmlFor="acceptTerms" className="text-sm text-gray-400">
-            I accept the{' '}
-            <a href="/terms" className="text-gray-300 hover:text-white hover:underline">
-              Terms of Service
-            </a>{' '}
-            and{' '}
-            <a href="/privacy" className="text-gray-300 hover:text-white hover:underline">
-              Privacy Policy
-            </a>
-          </label>
-        </div>
-        {errors.acceptTerms && (
-          <p className="text-sm text-red-300">{errors.acceptTerms.message}</p>
-        )}
+
+
 
         {(errors.root || authError) && (
           <div

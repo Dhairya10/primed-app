@@ -5,12 +5,12 @@ export function Footer() {
         <div className="text-lg font-semibold">Primed</div>
 
         <div className="flex space-x-6 text-sm text-gray-500">
-          <a href="#" className="hover:text-white transition-colors">
+          {/* <a href="#" className="hover:text-white transition-colors">
             Privacy
           </a>
           <a href="#" className="hover:text-white transition-colors">
             Terms
-          </a>
+          </a> */}
           <a href="#" className="hover:text-white transition-colors">
             Contact
           </a>
