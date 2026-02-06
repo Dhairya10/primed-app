@@ -3,6 +3,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { useAuthStore } from '@/lib/auth-store';
 import { Logo } from '@/components/ui/Logo';
+import { Link } from '@tanstack/react-router';
 
 export function Login() {
   const navigate = useNavigate();
@@ -48,7 +49,9 @@ export function Login() {
       <div className="w-full max-w-md bg-white/5 backdrop-blur-2xl p-8 md:p-10 shadow-2xl border-2 border-white/10">
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          <Logo size="lg" className="text-white" />
+          <Link to="/">
+            <Logo size="lg" className="text-white" />
+          </Link>
         </div>
 
         <LoginForm onSuccess={handleSuccess} />

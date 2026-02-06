@@ -113,9 +113,9 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
       {/* Header */}
       <div className="text-center">
         <h2 className="text-2xl font-semibold text-gray-300 mb-2">Create your account</h2>
-        <p className="text-sm text-gray-400">
+        {/* <p className="text-sm text-gray-400">
           Get started with your interview preparation journey
-        </p>
+        </p> */}
       </div>
 
       {/* Form */}
@@ -212,7 +212,7 @@ export function SignupForm({ onSuccess }: SignupFormProps) {
         </Button>
 
         <div className="text-center text-sm text-gray-400">
-          Or sign up with
+          or
         </div>
 
         {/* Google Sign-Up */}

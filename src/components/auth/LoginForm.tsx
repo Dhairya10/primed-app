@@ -143,7 +143,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
         </Button>
 
         <div className="text-center text-sm text-gray-400">
-          Or sign in with
+          or
         </div>
 
         {/* Google Sign-In */}
