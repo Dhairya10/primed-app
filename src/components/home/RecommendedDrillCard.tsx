@@ -23,7 +23,7 @@ export function RecommendedDrillCard({ drill, sessionCount, onClick }: Recommend
       onClick={onClick}
       className="w-full p-8 md:p-12 border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all duration-200 text-left group"
     >
-      <div className="flex items-start gap-6">
+      <div className="flex items-start gap-3 sm:gap-6">
         {drill.logoUrl && (
           <div className="w-14 h-14 md:w-16 md:h-16 border border-white/10 bg-white/5 flex items-center justify-center flex-shrink-0">
             <img

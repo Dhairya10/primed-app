@@ -106,7 +106,7 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
               >
                 <div className="flex items-center gap-2">
                   <div className={`w-3 h-3 ${getDotColor('red')} flex-shrink-0`} />
-                  <span className="text-xs text-white/90 truncate hidden sm:block">
+                  <span className="text-xs text-white/90 truncate">
                     {skill.skill_name}
                   </span>
                 </div>
@@ -132,7 +132,7 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
               >
                 <div className="flex items-center gap-2">
                   <div className={`w-3 h-3 ${getDotColor('yellow')} flex-shrink-0`} />
-                  <span className="text-xs text-white/90 truncate hidden sm:block">
+                  <span className="text-xs text-white/90 truncate">
                     {skill.skill_name}
                   </span>
                 </div>
@@ -158,7 +158,7 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
               >
                 <div className="flex items-center gap-2">
                   <div className={`w-3 h-3 ${getDotColor('green')} flex-shrink-0`} />
-                  <span className="text-xs text-white/90 truncate hidden sm:block">
+                  <span className="text-xs text-white/90 truncate">
                     {skill.skill_name}
                   </span>
                 </div>
@@ -183,7 +183,7 @@ export function SkillMap({ userId, className = '' }: SkillMapProps) {
               >
                 <div className="flex items-center gap-2">
                   <div className={`w-3 h-3 ${getDotColor('untested')} flex-shrink-0`} />
-                  <span className="text-xs text-white/70 hidden sm:inline">
+                  <span className="text-xs text-white/70 truncate">
                     {skill.skill_name}
                   </span>
                 </div>

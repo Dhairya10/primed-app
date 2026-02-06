@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { SignupForm } from '@/components/auth/SignupForm';
 import { useAuthStore } from '@/lib/auth-store';
+import { Logo } from '@/components/ui/Logo';
 
 export function Signup() {
   const navigate = useNavigate();
@@ -41,11 +42,9 @@ export function Signup() {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white/5 backdrop-blur-2xl p-8 md:p-10 shadow-2xl border-2 border-white/10">
-        {/* Placeholder Logo */}
+        {/* Logo */}
         <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 bg-white/10 backdrop-blur-md flex items-center justify-center border-2 border-white/20">
-            <span className="text-3xl font-bold text-white">P</span>
-          </div>
+          <Logo size="lg" className="text-white" />
         </div>
 
         <SignupForm onSuccess={handleSuccess} />

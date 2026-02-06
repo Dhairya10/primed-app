@@ -245,7 +245,7 @@ export function DrillsTab() {
 
           {/* Dropdown Menu */}
           {isFilterOpen && (
-            <div className="absolute right-0 top-full mt-2 w-64 bg-black border border-white/20 shadow-xl z-50 p-4 space-y-4">
+            <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-64 max-w-64 bg-black border border-white/20 shadow-xl z-50 p-4 space-y-4">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"

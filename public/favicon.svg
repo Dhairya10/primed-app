@@ -1,0 +1,10 @@
+<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Vertical stem of P -->
+  <rect x="0" y="0" width="10" height="48" fill="black"/>
+  <!-- Top connector of P -->
+  <rect x="10" y="0" width="30" height="8" fill="black"/>
+  <!-- Right side of bump -->
+  <rect x="32" y="8" width="8" height="16" fill="black"/>
+  <!-- Middle connector closing the bump -->
+  <rect x="10" y="24" width="30" height="8" fill="black"/>
+</svg>
