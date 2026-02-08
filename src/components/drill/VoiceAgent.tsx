@@ -50,6 +50,7 @@ export function VoiceAgent({ sessionId, onSessionEnd, title }: VoiceAgentProps) 
     onError: (err) => {
       console.error('Voice agent error:', err);
     },
+    onSessionEnd: onSessionEnd,
   });
 
   // Initialize audio capture service
