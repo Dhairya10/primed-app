@@ -12,11 +12,12 @@ import { Phone } from 'lucide-react';
 interface VoiceAgentProps {
   sessionId: string;
   onSessionEnd: () => void;
+  title?: string;
 }
 
 type WaveformMode = 'listening' | 'speaking' | 'thinking';
 
-export function VoiceAgent({ sessionId, onSessionEnd }: VoiceAgentProps) {
+export function VoiceAgent({ sessionId, onSessionEnd, title }: VoiceAgentProps) {
   const session = useAuthStore((state) => state.session);
   const [isMuted, setIsMuted] = useState(false);
   const [startTime, setStartTime] = useState<Date | null>(null);
@@ -138,8 +139,11 @@ export function VoiceAgent({ sessionId, onSessionEnd }: VoiceAgentProps) {
 
   return (
     <div className="min-h-screen bg-ink-950 text-paper-50 flex flex-col">
-      {/* Header with Timer */}
-      <div className="p-4 flex justify-end border-b border-white/10">
+      {/* Header with Title and Timer */}
+      <div className="p-4 flex items-center justify-between border-b border-white/10">
+        <div className="text-base font-normal text-paper-200">
+          {title}
+        </div>
         {startTime && <Timer startTime={startTime} />}
       </div>
 

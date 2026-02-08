@@ -126,6 +126,7 @@ export async function getDrillSessionStatus(
   sessionId: string
 ): Promise<{
   session_id: string;
+  drill_title?: string;
   status: string;
   started_at: string;
   completed_at?: string;
@@ -152,6 +153,7 @@ export async function getDrillSessionStatus(
 
   return {
     session_id: response.session_id,
+    drill_title: (response as any).drill_title, // Cast to any because the interface definition above isn't updated yet, but we expect it from backend or will add it
     status: response.status,
     started_at: response.started_at,
     completed_at: response.completed_at ?? undefined,

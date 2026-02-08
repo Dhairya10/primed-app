@@ -84,7 +84,11 @@ export function LoadingScreen({ problemId, onCancel }: LoadingScreenProps) {
       try {
         const session = await startDrillSession(problemId);
         if (mountedRef.current) {
-          await navigate({ to: `/drill/${session.session_id}`, replace: true });
+          await navigate({
+            to: `/drill/${session.session_id}`,
+            replace: true,
+            state: { title: session.problem.display_title || session.problem.title } as any,
+          });
         }
       } catch (err) {
         if (mountedRef.current) {

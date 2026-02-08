@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useParams } from '@tanstack/react-router';
+import { useNavigate, useParams, useLocation } from '@tanstack/react-router';
+import { getDrillSessionStatus } from '@/lib/api';
 import { VoiceAgent } from '@/components/drill/VoiceAgent';
 import { EndScreen } from '@/components/drill/EndScreen';
 import { ConfirmationDialog } from '@/components/drill/ConfirmationDialog';
@@ -10,8 +11,31 @@ export function DrillSession() {
   const params = useParams({ strict: false });
   const sessionId = params.sessionId as string;
   const navigate = useNavigate();
+  const location = useLocation();
+  // Try to get title from navigation state first
+  const [title, setTitle] = useState<string | undefined>(
+    (location.state as any)?.title
+  );
   const [stage, setStage] = useState<SessionStage>('active');
   const [showBackExitDialog, setShowBackExitDialog] = useState(false);
+
+  // Fetch title if not available in state
+  useEffect(() => {
+    if (title) return;
+
+    const fetchSessionDetails = async () => {
+      try {
+        const status = await getDrillSessionStatus(sessionId);
+        if (status.drill_title) {
+          setTitle(status.drill_title);
+        }
+      } catch (err) {
+        console.error('Failed to fetch session details:', err);
+      }
+    };
+
+    fetchSessionDetails();
+  }, [sessionId, title]);
 
   const handleSessionEnd = () => {
     setStage('completed');
@@ -76,6 +100,7 @@ export function DrillSession() {
       <VoiceAgent
         sessionId={sessionId}
         onSessionEnd={handleSessionEnd}
+        title={title}
       />
       <ConfirmationDialog
         isOpen={showBackExitDialog}
