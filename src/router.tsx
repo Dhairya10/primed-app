@@ -8,7 +8,6 @@ import {
   useRouterState,
 } from '@tanstack/react-router';
 import { Navigation } from '@/components/layout/Navigation';
-import { Footer } from '@/components/layout/Footer';
 import { BackgroundParticles } from '@/components/ui/BackgroundParticles';
 import { Landing } from '@/pages/Landing';
 import { About } from '@/pages/About';
@@ -30,11 +29,13 @@ import { VerifyEmail } from '@/pages/VerifyEmail';
 import { OAuthCallback } from '@/pages/auth/Callback';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { PublicRoute } from '@/components/auth/PublicRoute';
-import { IS_AUTH_ENABLED } from '@/lib/constants';
+import { IS_AUTH_ENABLED, IS_BRAND_FONTS_ENABLED } from '@/lib/constants';
 
 const rootRoute = createRootRoute({
   component: () => (
-    <div className="bg-black text-white min-h-screen font-sans overflow-x-hidden">
+    <div
+      className={`bg-black text-white min-h-screen font-sans overflow-x-hidden ${IS_BRAND_FONTS_ENABLED ? 'brand-fonts' : ''}`}
+    >
       <Outlet />
     </div>
   ),

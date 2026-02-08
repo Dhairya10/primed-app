@@ -2,6 +2,7 @@
 export const IS_API_ENABLED = true; // Set to true when backend is ready
 export const IS_ONBOARDING_ENABLED = false; // Set to false to skip onboarding
 export const IS_AUTH_ENABLED = true; // Set to true when auth is ready (requires Supabase config)
+export const IS_BRAND_FONTS_ENABLED = false; // Set to false to use fallback system fonts
 export const DEFAULT_USER_ID = '';
 
 // Business rules

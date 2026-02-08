@@ -6,6 +6,10 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--app-font-sans)'],
+        serif: ['var(--app-font-serif)'],
+      },
       colors: {
         'ink': {
           950: '#000000',

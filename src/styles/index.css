@@ -2,6 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Anthropic Sans';
+  src: url('/fonts/anthropicSans.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Anthropic Serif';
+  src: url('/fonts/anthropicSerif.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  --app-font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --app-font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+}
+
+.brand-fonts {
+  --app-font-sans: 'Anthropic Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --app-font-serif: 'Anthropic Serif', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+}
+
 @layer base {
   html {
     width: 100%;
@@ -19,6 +45,12 @@
 
   #root {
     min-height: 100%;
+  }
+
+  .brand-fonts h1,
+  .brand-fonts h2,
+  .brand-fonts h3 {
+    @apply font-serif;
   }
 }
 
