@@ -23,7 +23,7 @@ export function DrillListCard({ drill, isCompleted = false }: DrillListCardProps
     >
       <div className="flex items-start gap-3 flex-1">
         {drill.product_logo_url && (
-          <div className="w-10 h-10 rounded border border-white/10 bg-white/5 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded border border-white/10 flex items-center justify-center flex-shrink-0">
             <img
               src={drill.product_logo_url}
               alt=""

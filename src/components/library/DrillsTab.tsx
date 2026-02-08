@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useSearch, useNavigate } from '@tanstack/react-router';
 import type { Drill, ProblemType, SkillSimple } from '@/types/api';
 import { DrillListCard } from './DrillListCard';
@@ -31,7 +31,7 @@ export function DrillsTab() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [hasMore, setHasMore] = useState(false);
-  const [offset, setOffset] = useState(0);
+  const offsetRef = useRef(0);
   const [selectedProblemType, setSelectedProblemType] = useState<ProblemType | undefined>();
   const [selectedSkill, setSelectedSkill] = useState<string | undefined>(search.skill);
   const [availableSkills, setAvailableSkills] = useState<SkillSimple[]>([]);
@@ -56,7 +56,7 @@ export function DrillsTab() {
 
   useEffect(() => {
     setSelectedSkill(search.skill || undefined);
-    setOffset(0);
+    offsetRef.current = 0;
     setDrills([]);
   }, [search.skill]);
 
@@ -65,7 +65,7 @@ export function DrillsTab() {
     () =>
       debounce((value: string) => {
         setSearchQuery(value);
-        setOffset(0);
+        offsetRef.current = 0;
         setDrills([]);
       }, 300),
     []
@@ -80,13 +80,13 @@ export function DrillsTab() {
   const handleClearSearch = () => {
     setSearchInput('');
     setSearchQuery('');
-    setOffset(0);
+    offsetRef.current = 0;
     setDrills([]);
   };
 
   const handleFilterChange = (problemType: ProblemType | undefined) => {
     setSelectedProblemType(problemType);
-    setOffset(0);
+    offsetRef.current = 0;
     setDrills([]);
     setIsFilterOpen(false);
   };
@@ -98,10 +98,11 @@ export function DrillsTab() {
           setIsLoadingMore(true);
         } else {
           setIsLoading(true);
+          offsetRef.current = 0;
         }
         setError(null);
 
-        const currentOffset = loadMore ? offset : 0;
+        const currentOffset = loadMore ? offsetRef.current : 0;
         const response = await getLibraryDrills({
           query: searchQuery || undefined,
           problem_type: selectedProblemType,
@@ -118,11 +119,7 @@ export function DrillsTab() {
         }
 
         setHasMore(response.has_more);
-        if (loadMore) {
-          setOffset(currentOffset + response.count);
-        } else {
-          setOffset(response.count);
-        }
+        offsetRef.current = currentOffset + response.count;
       } catch (err) {
         console.error('Failed to fetch drills:', err);
         setError('Failed to load drills');
@@ -131,7 +128,7 @@ export function DrillsTab() {
         setIsLoadingMore(false);
       }
     },
-    [searchQuery, selectedProblemType, selectedSkill, showOnlyUnattempted, offset]
+    [searchQuery, selectedProblemType, selectedSkill, showOnlyUnattempted]
   );
 
   // Fetch drills when search query or filter changes
@@ -154,7 +151,7 @@ export function DrillsTab() {
     setSelectedProblemType(undefined);
     setShowOnlyUnattempted(false);
     setSelectedSkill(undefined);
-    setOffset(0);
+    offsetRef.current = 0;
     setDrills([]);
     navigate({ to: '/library', search: {} });
   };
@@ -252,7 +249,7 @@ export function DrillsTab() {
                   checked={showOnlyUnattempted}
                   onChange={(e) => {
                     setShowOnlyUnattempted(e.target.checked);
-                    setOffset(0);
+                    offsetRef.current = 0;
                     setDrills([]);
                   }}
                   className="w-4 h-4 rounded border-white/20 bg-white/5 checked:bg-white checked:border-white"
@@ -283,7 +280,7 @@ export function DrillsTab() {
                   onChange={(e) => {
                     const nextSkill = e.target.value || undefined;
                     setSelectedSkill(nextSkill);
-                    setOffset(0);
+                    offsetRef.current = 0;
                     setDrills([]);
                     setIsFilterOpen(false);
                     navigate({
@@ -315,7 +312,7 @@ export function DrillsTab() {
               <button
                 onClick={() => {
                   setShowOnlyUnattempted(false);
-                  setOffset(0);
+                  offsetRef.current = 0;
                   setDrills([]);
                 }}
                 className="hover:text-white/60"
@@ -343,7 +340,7 @@ export function DrillsTab() {
               <button
                 onClick={() => {
                   setSelectedSkill(undefined);
-                  setOffset(0);
+                  offsetRef.current = 0;
                   setDrills([]);
                   navigate({ to: '/library', search: {} });
                 }}

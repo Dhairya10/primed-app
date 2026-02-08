@@ -10,7 +10,7 @@ const FAQS: FAQ[] = [
   {
     question: 'How much time should I set aside for each interview?',
     answer:
-      'Each interview session runs for 25-30 minutes, similar to actual screening rounds',
+      'Each interview session runs for 15-20 minutes, similar to actual screening rounds',
   },
   {
     question: 'Is this a video interview or audio-only?',

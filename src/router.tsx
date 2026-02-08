@@ -48,7 +48,7 @@ const indexRoute = createRoute({
       <BackgroundParticles />
       <Navigation />
       <Landing />
-      <Footer />
+      {/* <Footer /> */}
     </>
   ),
 });
@@ -61,7 +61,7 @@ const aboutRoute = createRoute({
       <BackgroundParticles />
       <Navigation />
       <About />
-      <Footer />
+      {/* <Footer /> */}
     </>
   ),
 });
