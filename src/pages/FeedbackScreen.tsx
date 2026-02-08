@@ -17,10 +17,10 @@ export function FeedbackScreen() {
   });
 
   const groupedSkills = data?.skills_evaluated.reduce((acc, skill) => {
-    if (!acc[skill.status]) {
-      acc[skill.status] = [];
+    if (!acc[skill.evaluation]) {
+      acc[skill.evaluation] = [];
     }
-    acc[skill.status].push(skill);
+    acc[skill.evaluation].push(skill);
     return acc;
   }, {} as Record<string, SkillFeedback[]>) ?? {};
 

@@ -181,7 +181,7 @@ export type EvaluationStatus = 'pending' | 'processing' | 'completed' | 'failed'
 
 export interface SkillFeedback {
   skill_name: string;
-  status: SkillStatus;
+  evaluation: SkillStatus;
   feedback: string;
   improvement_suggestion: string | null;
 }
