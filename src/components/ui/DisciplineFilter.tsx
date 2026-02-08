@@ -26,26 +26,27 @@ export function DisciplineFilter() {
 
   return (
     <div className="w-full space-y-6 md:space-y-8">
-      {/* Discipline Filter Tabs - NO ROUNDED CORNERS */}
-      <div className="flex flex-wrap gap-2 md:gap-3 justify-center">
-        {DISCIPLINES.map((discipline) => (
-          <button
-            key={discipline.id}
-            onClick={() => setSelectedDiscipline(discipline.id)}
-            className={`
-              px-4 py-2 md:px-6 md:py-3 text-sm md:text-base font-medium
-              transition-all duration-300 min-h-[44px] touch-manipulation
-              ${
-                selectedDiscipline === discipline.id
+      {/* Discipline Filter Tabs - Only show if multiple disciplines */}
+      {DISCIPLINES.length > 1 && (
+        <div className="flex flex-wrap gap-2 md:gap-3 justify-center">
+          {DISCIPLINES.map((discipline) => (
+            <button
+              key={discipline.id}
+              onClick={() => setSelectedDiscipline(discipline.id)}
+              className={`
+                px-4 py-2 md:px-6 md:py-3 text-sm md:text-base font-medium
+                transition-all duration-300 min-h-[44px] touch-manipulation
+                ${selectedDiscipline === discipline.id
                   ? 'bg-white text-black border-2 border-white'
                   : 'bg-white/10 text-white border-2 border-white/20 hover:bg-white/20 hover:border-white/30'
-              }
-            `}
-          >
-            {discipline.name}
-          </button>
-        ))}
-      </div>
+                }
+              `}
+            >
+              {discipline.name}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Role Cards Container - Accordion */}
       <div className="space-y-3 md:space-y-4 max-w-3xl mx-auto">

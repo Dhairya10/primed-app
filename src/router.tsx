@@ -3,9 +3,11 @@ import {
   createRoute,
   createRouter,
   Outlet,
+  useNavigate,
+  useParams,
+  useRouterState,
 } from '@tanstack/react-router';
 import { Navigation } from '@/components/layout/Navigation';
-import { Footer } from '@/components/layout/Footer';
 import { BackgroundParticles } from '@/components/ui/BackgroundParticles';
 import { Landing } from '@/pages/Landing';
 import { About } from '@/pages/About';
@@ -14,9 +16,10 @@ import { Home } from '@/pages/Home';
 import { Dashboard } from '@/pages/Dashboard';
 import { Profile } from '@/pages/Profile';
 import { Library } from '@/pages/Library';
-import { Interview } from '@/pages/Interview';
 import { SkillDetailScreen } from '@/pages/SkillDetailScreen';
 import { FeedbackScreen } from '@/pages/FeedbackScreen';
+import { DrillSession } from '@/pages/DrillSession';
+import { LoadingScreen } from '@/components/drill/LoadingScreen';
 import { Onboarding } from '@/pages/Onboarding';
 import { Login } from '@/pages/Login';
 import { Signup } from '@/pages/Signup';
@@ -26,11 +29,13 @@ import { VerifyEmail } from '@/pages/VerifyEmail';
 import { OAuthCallback } from '@/pages/auth/Callback';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { PublicRoute } from '@/components/auth/PublicRoute';
-import { IS_AUTH_ENABLED } from '@/lib/constants';
+import { IS_AUTH_ENABLED, IS_BRAND_FONTS_ENABLED } from '@/lib/constants';
 
 const rootRoute = createRootRoute({
   component: () => (
-    <div className="bg-black text-white min-h-screen font-sans overflow-x-hidden">
+    <div
+      className={`bg-black text-white min-h-screen font-sans overflow-x-hidden ${IS_BRAND_FONTS_ENABLED ? 'brand-fonts' : ''}`}
+    >
       <Outlet />
     </div>
   ),
@@ -44,7 +49,7 @@ const indexRoute = createRoute({
       <BackgroundParticles />
       <Navigation />
       <Landing />
-      <Footer />
+      {/* <Footer /> */}
     </>
   ),
 });
@@ -57,7 +62,7 @@ const aboutRoute = createRoute({
       <BackgroundParticles />
       <Navigation />
       <About />
-      <Footer />
+      {/* <Footer /> */}
     </>
   ),
 });
@@ -66,9 +71,13 @@ const authenticatedLayout = createRoute({
   getParentRoute: () => rootRoute,
   id: 'authenticated',
   component: () => {
+    const pathname = useRouterState({
+      select: (state) => state.location.pathname,
+    });
+    const isDrillRoute = pathname.startsWith('/drill/');
     const content = (
       <div className="bg-black text-white min-h-screen">
-        <AppNavigation />
+        {!isDrillRoute && <AppNavigation />}
         <Outlet />
       </div>
     );
@@ -106,22 +115,33 @@ const libraryRoute = createRoute({
   component: Library,
 });
 
-const interviewRoute = createRoute({
-  getParentRoute: () => authenticatedLayout,
-  path: '/interview/$sessionId',
-  component: Interview,
-});
-
-const interviewNewRoute = createRoute({
-  getParentRoute: () => authenticatedLayout,
-  path: '/interview',
-  component: Interview,
-});
-
 const skillDetailRoute = createRoute({
   getParentRoute: () => authenticatedLayout,
-  path: '/skills/$skillName',
+  path: '/skills/$skillId',
   component: SkillDetailScreen,
+});
+
+const drillSessionRoute = createRoute({
+  getParentRoute: () => authenticatedLayout,
+  path: '/drill/$sessionId',
+  component: DrillSession,
+});
+
+const drillLoadingRoute = createRoute({
+  getParentRoute: () => authenticatedLayout,
+  path: '/drill/loading/$problemId',
+  component: () => {
+    const params = useParams({ strict: false });
+    const navigate = useNavigate();
+    const problemId = params.problemId as string;
+
+    return (
+      <LoadingScreen
+        problemId={problemId}
+        onCancel={() => navigate({ to: '/library' })}
+      />
+    );
+  },
 });
 
 const feedbackRoute = createRoute({
@@ -226,9 +246,9 @@ const routeTree = rootRoute.addChildren([
     dashboardRoute,
     profileRoute,
     libraryRoute,
-    interviewRoute,
-    interviewNewRoute,
     skillDetailRoute,
+    drillLoadingRoute,
+    drillSessionRoute,
     feedbackRoute,
   ]),
 ]);

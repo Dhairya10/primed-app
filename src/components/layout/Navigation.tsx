@@ -57,7 +57,7 @@ export function Navigation() {
               to="/signup"
               className="text-sm bg-white text-black px-4 py-2.5 md:px-5 hover:bg-gray-200 transition-colors font-medium min-h-[44px] touch-manipulation"
             >
-              Sign Up
+              Get Started
             </Link>
           </div>
         </div>

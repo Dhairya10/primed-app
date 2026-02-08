@@ -2,19 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Anthropic Sans';
+  src: url('/fonts/anthropicSans.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Anthropic Serif';
+  src: url('/fonts/anthropicSerif.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  --app-font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --app-font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+}
+
+.brand-fonts {
+  --app-font-sans: 'Anthropic Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --app-font-serif: 'Anthropic Serif', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+}
+
 @layer base {
   html {
-    position: fixed;
     width: 100%;
-    height: 100%;
-    overflow: hidden;
+    min-height: 100%;
   }
 
   body {
     @apply bg-black text-white antialiased;
     width: 100%;
-    height: 100%;
-    overflow-y: auto;
+    min-height: 100%;
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
@@ -22,6 +45,12 @@
 
   #root {
     min-height: 100%;
+  }
+
+  .brand-fonts h1,
+  .brand-fonts h2,
+  .brand-fonts h3 {
+    @apply font-serif;
   }
 }
 
@@ -63,15 +92,19 @@
   0% {
     transform: rotateX(-20deg) rotateY(-20deg) rotateZ(0deg);
   }
+
   25% {
     transform: rotateX(20deg) rotateY(110deg) rotateZ(90deg);
   }
+
   50% {
     transform: rotateX(200deg) rotateY(200deg) rotateZ(180deg);
   }
+
   75% {
     transform: rotateX(-160deg) rotateY(290deg) rotateZ(270deg);
   }
+
   100% {
     transform: rotateX(340deg) rotateY(340deg) rotateZ(360deg);
   }
@@ -82,10 +115,12 @@
 }
 
 @keyframes float {
+
   0%,
   100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-10px);
   }
@@ -104,6 +139,7 @@
     opacity: 1;
     stroke-dashoffset: 2000;
   }
+
   100% {
     opacity: 1;
     stroke-dashoffset: 0;
@@ -126,18 +162,22 @@
     opacity: 0;
     transform: translate(900px, 150px) scale(0);
   }
+
   70% {
     opacity: 0;
     transform: translate(900px, 150px) scale(0);
   }
+
   75% {
     opacity: 1;
     transform: translate(900px, 150px) scale(1.2);
   }
+
   80% {
     opacity: 1;
     transform: translate(900px, 150px) scale(1);
   }
+
   100% {
     opacity: 1;
     transform: translate(900px, 150px) scale(1);
@@ -163,6 +203,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

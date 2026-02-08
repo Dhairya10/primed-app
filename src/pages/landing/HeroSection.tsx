@@ -19,7 +19,8 @@ export function HeroSection() {
               <span className="block">your odds</span>
             </h1>
             <p className="text-base md:text-lg lg:text-xl text-gray-400 leading-relaxed">
-              <span className="block">Get the unbiased feedback you need to nail your next interview</span>
+              {/* <span className="block">Get the unbiased feedback you need to nail your next interview</span> */}
+              <span className="block">Primed is an AI interview coach that prepares you for your dream job</span>
             </p>
           </div>
         </div>

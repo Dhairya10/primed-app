@@ -72,8 +72,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
       // Listen for auth state changes (SIGN_IN, SIGN_OUT, TOKEN_REFRESHED, etc.)
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        async (event, session) => {
-          console.log('Auth event:', event);
+        async (_event, session) => {
+
 
           if (session?.user) {
             try {
@@ -113,7 +113,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     } catch (error) {
       console.error('Auth initialization error:', error);
       set({ isLoading: false });
-      return () => {}; // Return empty cleanup function
+      return () => { }; // Return empty cleanup function
     }
   },
 

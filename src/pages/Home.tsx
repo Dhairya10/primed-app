@@ -2,14 +2,14 @@ import { useEffect, useState } from 'react';
 import { useNavigate, Link } from '@tanstack/react-router';
 import { ArrowRight } from 'lucide-react';
 import { RecommendedDrillCard } from '@/components/home/RecommendedDrillCard';
-import { getHomeScreenRecommendation, getUserProfile, startDrillSession } from '@/lib/api';
-import { DEFAULT_USER_ID, IS_ONBOARDING_ENABLED } from '@/lib/constants';
+import { getHomeScreenRecommendation } from '@/lib/api';
+import { DEFAULT_USER_ID } from '@/lib/constants';
 import type { HomeScreenRecommendation } from '@/types/api';
 
 export function Home() {
   const navigate = useNavigate();
   const [data, setData] = useState<HomeScreenRecommendation | null>(null);
-  const [userName, setUserName] = useState('there');
+  const [greeting, setGreeting] = useState('Hey there');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,20 +19,14 @@ export function Home() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [recommendation, profile] = await Promise.all([
-          getHomeScreenRecommendation(DEFAULT_USER_ID),
-          getUserProfile(DEFAULT_USER_ID),
-        ]);
-
-        if (IS_ONBOARDING_ENABLED && !profile.onboarding_completed) {
-          navigate({ to: '/onboarding' });
-          return;
-        }
+        const recommendation = await getHomeScreenRecommendation(DEFAULT_USER_ID);
 
         if (!isMounted) return;
 
         setData(recommendation);
-        setUserName(profile.first_name?.trim() || 'there');
+        setGreeting(recommendation.greeting);
+
+
       } catch (err) {
         console.error(err);
         if (isMounted) {
@@ -52,22 +46,15 @@ export function Home() {
     };
   }, [navigate]);
 
-  const handleDrillClick = async () => {
+  const handleDrillClick = () => {
     if (!data) return;
-
-    try {
-      const session = await startDrillSession(data.drill.id);
-      navigate({ to: `/interview/${session.session_id}` });
-    } catch (err) {
-      console.error('Failed to start drill:', err);
-      setError('Failed to start drill');
-    }
+    navigate({ to: `/drill/loading/${data.drill.id}` });
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-black text-white pt-24 px-4">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <div className="h-8 w-48 bg-white/10 rounded mb-8 animate-pulse" />
           <div className="h-64 bg-white/10 rounded animate-pulse" />
         </div>
@@ -78,7 +65,7 @@ export function Home() {
   if (error || !data) {
     return (
       <div className="min-h-screen bg-black text-white pt-24 px-4">
-        <div className="max-w-2xl mx-auto text-center">
+        <div className="max-w-4xl mx-auto text-center">
           <p className="text-white/60">{error || 'No recommendation available'}</p>
         </div>
       </div>
@@ -86,12 +73,15 @@ export function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pt-24 pb-12 px-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-white">Hey {userName}</h1>
-        </div>
+    <div className="min-h-screen bg-black text-white flex items-center justify-center px-4 py-20">
+      {/* Centered content - greeting, card, and CTA grouped together */}
+      <div className="w-full max-w-4xl space-y-8">
+        {/* Greeting just above card */}
+        <h1 className="text-5xl md:text-5xl font-medium text-white text-center">
+          {greeting}
+        </h1>
 
+        {/* Drill card */}
         <RecommendedDrillCard
           drill={{
             id: data.drill.id,
@@ -100,10 +90,12 @@ export function Home() {
             reasoning: data.drill.reasoning,
             logoUrl: data.drill.product_logo_url,
           }}
+          sessionCount={data.session_count}
           onClick={handleDrillClick}
         />
 
-        <div className="mt-6 text-center">
+        {/* CTA just below card */}
+        <div className="text-center">
           <Link
             to="/library"
             className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors text-sm"

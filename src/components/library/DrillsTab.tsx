@@ -1,13 +1,13 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useSearch, useNavigate } from '@tanstack/react-router';
-import type { Drill, ProblemType } from '@/types/api';
+import type { Drill, ProblemType, SkillSimple } from '@/types/api';
 import { DrillListCard } from './DrillListCard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { getLibraryDrills, getLibraryMetadata } from '@/lib/api';
 import { Search, Filter } from 'lucide-react';
 import { useClickOutside } from '@/hooks/useClickOutside';
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 15;
 
 // Debounce utility
 function debounce<Args extends unknown[]>(
@@ -31,10 +31,10 @@ export function DrillsTab() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [hasMore, setHasMore] = useState(false);
-  const [offset, setOffset] = useState(0);
+  const offsetRef = useRef(0);
   const [selectedProblemType, setSelectedProblemType] = useState<ProblemType | undefined>();
   const [selectedSkill, setSelectedSkill] = useState<string | undefined>(search.skill);
-  const [availableSkills, setAvailableSkills] = useState<string[]>([]);
+  const [availableSkills, setAvailableSkills] = useState<SkillSimple[]>([]);
   const [showOnlyUnattempted, setShowOnlyUnattempted] = useState(false);
   const [availableProblemTypes, setAvailableProblemTypes] = useState<ProblemType[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -56,7 +56,7 @@ export function DrillsTab() {
 
   useEffect(() => {
     setSelectedSkill(search.skill || undefined);
-    setOffset(0);
+    offsetRef.current = 0;
     setDrills([]);
   }, [search.skill]);
 
@@ -65,7 +65,7 @@ export function DrillsTab() {
     () =>
       debounce((value: string) => {
         setSearchQuery(value);
-        setOffset(0);
+        offsetRef.current = 0;
         setDrills([]);
       }, 300),
     []
@@ -80,13 +80,13 @@ export function DrillsTab() {
   const handleClearSearch = () => {
     setSearchInput('');
     setSearchQuery('');
-    setOffset(0);
+    offsetRef.current = 0;
     setDrills([]);
   };
 
   const handleFilterChange = (problemType: ProblemType | undefined) => {
     setSelectedProblemType(problemType);
-    setOffset(0);
+    offsetRef.current = 0;
     setDrills([]);
     setIsFilterOpen(false);
   };
@@ -98,10 +98,11 @@ export function DrillsTab() {
           setIsLoadingMore(true);
         } else {
           setIsLoading(true);
+          offsetRef.current = 0;
         }
         setError(null);
 
-        const currentOffset = loadMore ? offset : 0;
+        const currentOffset = loadMore ? offsetRef.current : 0;
         const response = await getLibraryDrills({
           query: searchQuery || undefined,
           problem_type: selectedProblemType,
@@ -118,11 +119,7 @@ export function DrillsTab() {
         }
 
         setHasMore(response.has_more);
-        if (loadMore) {
-          setOffset(currentOffset + response.count);
-        } else {
-          setOffset(response.count);
-        }
+        offsetRef.current = currentOffset + response.count;
       } catch (err) {
         console.error('Failed to fetch drills:', err);
         setError('Failed to load drills');
@@ -131,7 +128,7 @@ export function DrillsTab() {
         setIsLoadingMore(false);
       }
     },
-    [searchQuery, selectedProblemType, selectedSkill, showOnlyUnattempted, offset]
+    [searchQuery, selectedProblemType, selectedSkill, showOnlyUnattempted]
   );
 
   // Fetch drills when search query or filter changes
@@ -143,6 +140,20 @@ export function DrillsTab() {
     if (!isLoadingMore && hasMore) {
       fetchDrills(true);
     }
+  };
+
+
+  const getSkillName = (id: string) => {
+    return availableSkills.find((s) => s.id === id)?.name || id;
+  };
+
+  const handleClearFilters = () => {
+    setSelectedProblemType(undefined);
+    setShowOnlyUnattempted(false);
+    setSelectedSkill(undefined);
+    offsetRef.current = 0;
+    setDrills([]);
+    navigate({ to: '/library', search: {} });
   };
 
   // Format problem type for display
@@ -192,6 +203,7 @@ export function DrillsTab() {
   return (
     <div className="space-y-6">
       {/* Search Bar and Filter */}
+
       <div className="flex gap-3">
         {/* Search */}
         <div className="relative flex-1">
@@ -218,9 +230,8 @@ export function DrillsTab() {
         <div ref={filterDropdownRef} className="relative">
           <button
             onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className={`flex items-center justify-center gap-2 h-12 px-4 bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/20 transition-all duration-200 ${
-              hasActiveFilters ? 'border-white/30' : ''
-            }`}
+            className={`flex items-center justify-center gap-2 h-12 px-4 bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/20 transition-all duration-200 ${hasActiveFilters ? 'border-white/30' : ''
+              }`}
             aria-label="Filter drills"
           >
             <Filter className="w-5 h-5" />
@@ -231,14 +242,14 @@ export function DrillsTab() {
 
           {/* Dropdown Menu */}
           {isFilterOpen && (
-            <div className="absolute right-0 top-full mt-2 w-64 bg-black border border-white/20 shadow-xl z-50 p-4 space-y-4">
+            <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-64 max-w-64 bg-black border border-white/20 shadow-xl z-50 p-4 space-y-4">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={showOnlyUnattempted}
                   onChange={(e) => {
                     setShowOnlyUnattempted(e.target.checked);
-                    setOffset(0);
+                    offsetRef.current = 0;
                     setDrills([]);
                   }}
                   className="w-4 h-4 rounded border-white/20 bg-white/5 checked:bg-white checked:border-white"
@@ -269,7 +280,7 @@ export function DrillsTab() {
                   onChange={(e) => {
                     const nextSkill = e.target.value || undefined;
                     setSelectedSkill(nextSkill);
-                    setOffset(0);
+                    offsetRef.current = 0;
                     setDrills([]);
                     setIsFilterOpen(false);
                     navigate({
@@ -281,8 +292,8 @@ export function DrillsTab() {
                 >
                   <option value="">All</option>
                   {availableSkills.map((skill) => (
-                    <option key={skill} value={skill}>
-                      {skill}
+                    <option key={skill.id} value={skill.id}>
+                      {skill.name}
                     </option>
                   ))}
                 </select>
@@ -291,6 +302,63 @@ export function DrillsTab() {
           )}
         </div>
       </div>
+
+      {/* Active Filters Display */}
+      {hasActiveFilters && (
+        <div className="flex flex-wrap gap-2 items-center">
+          {showOnlyUnattempted && (
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-white/10 text-xs text-white border border-white/10">
+              <span>Unattempted Only</span>
+              <button
+                onClick={() => {
+                  setShowOnlyUnattempted(false);
+                  offsetRef.current = 0;
+                  setDrills([]);
+                }}
+                className="hover:text-white/60"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          {selectedProblemType && (
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-white/10 text-xs text-white border border-white/10">
+              <span>{formatProblemType(selectedProblemType)}</span>
+              <button
+                onClick={() => handleFilterChange(undefined)}
+                className="hover:text-white/60"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          {selectedSkill && (
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-white/10 text-xs text-white border border-white/10">
+              <span>{getSkillName(selectedSkill)}</span>
+              <button
+                onClick={() => {
+                  setSelectedSkill(undefined);
+                  offsetRef.current = 0;
+                  setDrills([]);
+                  navigate({ to: '/library', search: {} });
+                }}
+                className="hover:text-white/60"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
+          <button
+            onClick={handleClearFilters}
+            className="text-xs text-white/50 hover:text-white transition-colors underline ml-1"
+          >
+            Clear All
+          </button>
+        </div>
+      )}
 
       {/* Results count */}
       {drills.length > 0 && (

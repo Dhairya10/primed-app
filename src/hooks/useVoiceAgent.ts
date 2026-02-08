@@ -10,6 +10,7 @@ interface VoiceAgentConfig {
   authToken?: string | null;
   onConnected?: () => void;
   onDisconnected?: () => void;
+  onSessionEnd?: () => void;
   onError?: (error: Error) => void;
   onAudioReceived?: (audioData: ArrayBuffer, mimeType: string) => void;
   onTranscript?: (role: TranscriptRole, text: string) => void;
@@ -25,6 +26,7 @@ export function useVoiceAgent(config: VoiceAgentConfig) {
     authToken,
     onConnected,
     onDisconnected,
+    onSessionEnd,
     onError,
     onAudioReceived,
     onTranscript,
@@ -35,13 +37,14 @@ export function useVoiceAgent(config: VoiceAgentConfig) {
   const [error, setError] = useState<Error | null>(null);
 
   const wsRef = useRef<WebSocket | null>(null);
-  const connectRef = useRef<() => void>(() => {});
+  const connectRef = useRef<() => void>(() => { });
   const reconnectAttemptRef = useRef(0);
   const reconnectTimeoutRef = useRef<number | null>(null);
   const shouldReconnectRef = useRef(true);
 
   const onConnectedRef = useRef(onConnected);
   const onDisconnectedRef = useRef(onDisconnected);
+  const onSessionEndRef = useRef(onSessionEnd);
   const onErrorRef = useRef(onError);
   const onAudioReceivedRef = useRef(onAudioReceived);
   const onTranscriptRef = useRef(onTranscript);
@@ -54,6 +57,10 @@ export function useVoiceAgent(config: VoiceAgentConfig) {
   useEffect(() => {
     onDisconnectedRef.current = onDisconnected;
   }, [onDisconnected]);
+
+  useEffect(() => {
+    onSessionEndRef.current = onSessionEnd;
+  }, [onSessionEnd]);
 
   useEffect(() => {
     onErrorRef.current = onError;
@@ -151,7 +158,12 @@ export function useVoiceAgent(config: VoiceAgentConfig) {
         shouldReconnectRef.current = false;
         cleanupSocket();
         setConnectionStatus('disconnected');
+
+        // First notify disconnection (stops audio)
         onDisconnectedRef.current?.();
+
+        // Then trigger post-drill flow (transitions to EndScreen)
+        onSessionEndRef.current?.();
         break;
       }
       default:
@@ -194,6 +206,8 @@ export function useVoiceAgent(config: VoiceAgentConfig) {
       reconnectAttemptRef.current = 0;
       setError(null);
       setConnectionStatus('connected');
+      // Trigger agent to speak first
+      ws.send(JSON.stringify({ type: 'session_start' }));
       onConnectedRef.current?.();
     };
 

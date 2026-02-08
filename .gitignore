@@ -32,3 +32,9 @@ dist-ssr
 .mcp.json
 .claude/
 docs/
+CLAUDE.md
+
+# Firebase
+.firebase/
+.firebaserc
+firebase.json

@@ -7,7 +7,7 @@ interface SkillFeedbackCardProps {
 
 export function SkillFeedbackCard({ skill }: SkillFeedbackCardProps) {
   const getStatusBadge = () => {
-    switch (skill.status) {
+    switch (skill.evaluation) {
       case 'Demonstrated':
         return (
           <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
@@ -45,7 +45,7 @@ export function SkillFeedbackCard({ skill }: SkillFeedbackCardProps) {
       {skill.improvement_suggestion && (
         <div className="bg-white/5 rounded p-3 border border-white/10">
           <p className="text-xs font-semibold text-white/80 mb-1 flex items-center gap-1">
-            💡 Improvement Suggestion
+           Improvement Suggestion
           </p>
           <p className="text-sm text-white/70 leading-relaxed">
             {skill.improvement_suggestion}
