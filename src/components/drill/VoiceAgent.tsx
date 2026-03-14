@@ -44,6 +44,10 @@ export function VoiceAgent({ sessionId, onSessionEnd, title }: VoiceAgentProps) 
     onAudioReceived: (data, mimeType) => {
       audioPlaybackRef.current?.playAudio(data, mimeType);
     },
+    onAudioInterrupted: () => {
+      // Clear queued audio when user interrupts agent
+      audioPlaybackRef.current?.clearQueue();
+    },
     onTranscript: (_role, _text) => {
 
     },

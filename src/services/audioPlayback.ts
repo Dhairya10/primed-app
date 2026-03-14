@@ -2,6 +2,7 @@ export class AudioPlaybackService {
   private audioContext: AudioContext | null = null;
   private nextStartTime = 0;
   private outputVolume = 0;
+  private activeSources: AudioBufferSourceNode[] = [];
 
   isPlaying = false;
 
@@ -26,12 +27,21 @@ export class AudioPlaybackService {
     source.buffer = audioBuffer;
     source.connect(this.audioContext.destination);
 
+    // Track active source for interruption handling
+    this.activeSources.push(source);
+
     const startTime = Math.max(this.audioContext.currentTime, this.nextStartTime);
     source.start(startTime);
     this.nextStartTime = startTime + audioBuffer.duration;
     this.isPlaying = true;
 
     source.onended = () => {
+      // Remove from active sources
+      const index = this.activeSources.indexOf(source);
+      if (index > -1) {
+        this.activeSources.splice(index, 1);
+      }
+
       if (this.audioContext && this.audioContext.currentTime >= this.nextStartTime - 0.01) {
         this.isPlaying = false;
         this.outputVolume = 0;
@@ -39,10 +49,29 @@ export class AudioPlaybackService {
     };
   }
 
+  clearQueue(): void {
+    // Stop all active audio sources to handle interruptions
+    this.activeSources.forEach(source => {
+      try {
+        source.stop();
+        source.disconnect();
+      } catch (e) {
+        // Source might already be stopped or disconnected
+      }
+    });
+    this.activeSources = [];
+
+    // Reset playback state
+    this.isPlaying = false;
+    this.nextStartTime = this.audioContext?.currentTime ?? 0;
+    this.outputVolume = 0;
+  }
+
   stop(): void {
     this.isPlaying = false;
     this.nextStartTime = 0;
     this.outputVolume = 0;
+    this.activeSources = [];
 
     if (this.audioContext) {
       void this.audioContext.close();

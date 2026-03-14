@@ -13,6 +13,7 @@ interface VoiceAgentConfig {
   onSessionEnd?: () => void;
   onError?: (error: Error) => void;
   onAudioReceived?: (audioData: ArrayBuffer, mimeType: string) => void;
+  onAudioInterrupted?: () => void;
   onTranscript?: (role: TranscriptRole, text: string) => void;
   onMetadata?: (data: Record<string, unknown>) => void;
 }
@@ -29,6 +30,7 @@ export function useVoiceAgent(config: VoiceAgentConfig) {
     onSessionEnd,
     onError,
     onAudioReceived,
+    onAudioInterrupted,
     onTranscript,
     onMetadata,
   } = config;
@@ -47,6 +49,7 @@ export function useVoiceAgent(config: VoiceAgentConfig) {
   const onSessionEndRef = useRef(onSessionEnd);
   const onErrorRef = useRef(onError);
   const onAudioReceivedRef = useRef(onAudioReceived);
+  const onAudioInterruptedRef = useRef(onAudioInterrupted);
   const onTranscriptRef = useRef(onTranscript);
   const onMetadataRef = useRef(onMetadata);
 
@@ -69,6 +72,10 @@ export function useVoiceAgent(config: VoiceAgentConfig) {
   useEffect(() => {
     onAudioReceivedRef.current = onAudioReceived;
   }, [onAudioReceived]);
+
+  useEffect(() => {
+    onAudioInterruptedRef.current = onAudioInterrupted;
+  }, [onAudioInterrupted]);
 
   useEffect(() => {
     onTranscriptRef.current = onTranscript;
@@ -152,6 +159,11 @@ export function useVoiceAgent(config: VoiceAgentConfig) {
         const err = new Error(messageText);
         setError(err);
         onErrorRef.current?.(err);
+        break;
+      }
+      case 'interrupted': {
+        // Clear audio playback buffer when user interrupts agent
+        onAudioInterruptedRef.current?.();
         break;
       }
       case 'session_end': {
