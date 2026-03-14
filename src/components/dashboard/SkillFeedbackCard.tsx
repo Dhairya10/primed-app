@@ -1,4 +1,3 @@
-import { Badge } from '@/components/ui/Badge';
 import type { SkillFeedback } from '@/types/api';
 
 interface SkillFeedbackCardProps {
@@ -7,24 +6,25 @@ interface SkillFeedbackCardProps {
 
 export function SkillFeedbackCard({ skill }: SkillFeedbackCardProps) {
   const getStatusBadge = () => {
+    const base = 'inline-flex items-center font-medium px-2.5 py-0.5 text-xs border';
     switch (skill.evaluation) {
       case 'Demonstrated':
         return (
-          <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+          <span className={`${base} bg-green-500/20 text-green-400 border-green-500/30`}>
             Demonstrated
-          </Badge>
+          </span>
         );
       case 'Partial':
         return (
-          <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">
+          <span className={`${base} bg-yellow-500/20 text-yellow-400 border-yellow-500/30`}>
             Partial
-          </Badge>
+          </span>
         );
       case 'Missed':
         return (
-          <Badge className="bg-red-500/20 text-red-400 border-red-500/30">
+          <span className={`${base} bg-red-500/20 text-red-400 border-red-500/30`}>
             Missed
-          </Badge>
+          </span>
         );
     }
   };

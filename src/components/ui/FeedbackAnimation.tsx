@@ -1,202 +1,148 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
-interface SkillEvaluation {
-  skill_name: string;
-  evaluation: 'Demonstrated' | 'Partially' | 'Did not demonstrate';
-  feedback: string;
-  improvement_suggestion?: string;
-}
+const segments = [
+  {
+    label: 'Quantitative Reasoning',
+    status: 'missed' as const,
+    description: 'When estimating market size, broad assumptions were made without breaking them into components or sanity-checking against known benchmarks.',
+  },
+  {
+    label: 'Prioritization',
+    status: 'partial' as const,
+    description: "You mentioned focusing on mobile users first, but didn't explain the tradeoff — what you were choosing not to do, and why.",
+  },
+  {
+    label: 'Structured Thinking',
+    status: 'demonstrated' as const,
+    description: 'Your answer followed a clear framework — problem definition, user needs, solutions, metrics — making your reasoning easy to follow.',
+  },
+];
 
-interface FeedbackData {
-  summary: string;
-  skills: SkillEvaluation[];
-}
+type Status = 'demonstrated' | 'partial' | 'missed';
 
-const MOCK_FEEDBACK: FeedbackData = {
-  summary: "Strong product thinking with clear user empathy and structured approach. However, there's room to strengthen your quantitative reasoning and explicitly discuss trade-offs when prioritizing solutions.",
-  skills: [
-    {
-      skill_name: "Structured Thinking",
-      evaluation: "Demonstrated",
-      feedback: "Your answer followed a clear framework—problem definition, user needs, solutions, metrics. This made your reasoning easy to follow and showed preparation.",
-    },
-    {
-      skill_name: "Prioritization",
-      evaluation: "Partially",
-      feedback: "You mentioned focusing on mobile users first, but didn't explicitly explain why or what you were choosing not to do. The reasoning felt implied rather than stated.",
-      improvement_suggestion: "Use the '2-3 solutions' approach: present alternatives, evaluate tradeoffs explicitly, then justify your choice with clear reasoning about constraints and impact."
-    },
-    {
-      skill_name: "Quantitative Reasoning",
-      evaluation: "Did not demonstrate",
-      feedback: "When estimating market size, you used broad assumptions without breaking them down into components or sanity-checking the numbers against known benchmarks.",
-      improvement_suggestion: "Practice structuring estimations: Start with knowns (e.g., 'U.S. population ~330M'), break into segments, and validate ('Does 10M feel right for monthly active shoppers?')."
-    }
-  ]
+const STATUS_CONFIG: Record<Status, { label: string; color: string; bgTint: string; borderColor: string; dotColor: string; trackColor: string }> = {
+  demonstrated: {
+    label: 'Demonstrated',
+    color: 'text-green-400',
+    bgTint: 'bg-green-500/8',
+    borderColor: 'border-green-500/50',
+    dotColor: 'bg-green-500',
+    trackColor: '#22c55e',
+  },
+  partial: {
+    label: 'Partially Demonstrated',
+    color: 'text-yellow-400',
+    bgTint: 'bg-yellow-500/8',
+    borderColor: 'border-yellow-500/50',
+    dotColor: 'bg-yellow-400',
+    trackColor: '#eab308',
+  },
+  missed: {
+    label: 'Not Demonstrated',
+    color: 'text-red-400',
+    bgTint: 'bg-red-500/8',
+    borderColor: 'border-red-500/50',
+    dotColor: 'bg-red-500',
+    trackColor: '#ef4444',
+  },
 };
 
 export function FeedbackAnimation() {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [isScrolling, setIsScrolling] = useState(false);
-  const [opacity, setOpacity] = useState(1);
+  const [activeSegment, setActiveSegment] = useState<number>(0);
 
-  // Helper function to get border color based on evaluation status
-  const getEvaluationColor = (evaluation: SkillEvaluation['evaluation']) => {
-    switch (evaluation) {
-      case 'Demonstrated':
-        return 'border-green-500/60';
-      case 'Partially':
-        return 'border-yellow-500/60';
-      case 'Did not demonstrate':
-        return 'border-red-500/60';
-      default:
-        return 'border-white/10';
-    }
-  };
-
-  // Auto-scroll animation
   useEffect(() => {
-    const scrollContainer = scrollRef.current;
-    if (!scrollContainer) return;
-
-    let scrollInterval: number;
-    let isPaused = false;
-    let isAtTop = true;
-
-    const startScrolling = () => {
-      setIsScrolling(true);
-
-      // Initial pause at top for 3.5 seconds
-      setTimeout(() => {
-        isAtTop = false;
-
-        scrollInterval = window.setInterval(() => {
-          if (!scrollContainer || isPaused) return;
-
-          const maxScroll = scrollContainer.scrollHeight - scrollContainer.clientHeight;
-          const currentScroll = scrollContainer.scrollTop;
-
-          // When reaching bottom, restart from top with pause
-          if (currentScroll >= maxScroll - 5) {
-            isPaused = true;
-
-            // Pause at bottom for 3.5 seconds BEFORE any animation
-            setTimeout(() => {
-              // Reels-style dim effect - more noticeable
-              setOpacity(0.3);
-
-              setTimeout(() => {
-                if (scrollContainer) {
-                  // Jump to top during dim
-                  scrollContainer.scrollTop = 0;
-
-                  // Quick fade back in
-                  setTimeout(() => {
-                    setOpacity(1);
-                    isPaused = false;
-                    isAtTop = true;
-
-                    // Pause at top before starting next scroll
-                    setTimeout(() => {
-                      isAtTop = false;
-                    }, 3500);
-                  }, 150); // Smooth fade back
-                }
-              }, 200); // Noticeable dim
-            }, 3500); // Full 3.5 second pause at bottom
-          } else if (!isAtTop) {
-            // Much faster scroll: 8px every 15ms = ~533px/second
-            scrollContainer.scrollTop += 8;
-          }
-        }, 15);
-      }, 3500); // Initial pause at top
-    };
-
-    // Start scrolling after component mounts
-    const timeout = setTimeout(startScrolling, 500);
-
-    return () => {
-      clearTimeout(timeout);
-      clearInterval(scrollInterval);
-      setIsScrolling(false);
-    };
+    const interval = setInterval(() => {
+      setActiveSegment((prev) => (prev + 1) % segments.length);
+    }, 4000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="relative w-full h-[400px] md:h-[500px] bg-black/30 border border-white/10 overflow-hidden">
-      <div
-        ref={scrollRef}
-        className="h-full p-6 md:p-8 overflow-auto [&::-webkit-scrollbar]:hidden transition-opacity duration-200 ease-in-out"
-        style={{
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
-          pointerEvents: 'none',
-          scrollBehavior: 'auto',
-          opacity: opacity,
-        }}
-      >
-        {/* Top-level Summary */}
-        <div className="mb-6 md:mb-8">
-          <h3 className="text-white font-semibold text-lg md:text-xl mb-4">
-            Interview Feedback
-          </h3>
+    <div className="relative w-full h-[400px] md:h-[500px] bg-ink-950 border border-white/10 flex flex-col p-6 font-sans overflow-hidden">
+      <div className="flex-1 flex flex-col justify-center max-w-2xl mx-auto w-full">
 
-          {/* Summary */}
-          <div className="bg-white/5 p-4 border border-white/10">
-            <h4 className="text-white font-medium text-sm md:text-base mb-2">Summary</h4>
-            <p className="text-white/70 text-sm md:text-base leading-relaxed">
-              {MOCK_FEEDBACK.summary}
-            </p>
-          </div>
+        {/* CSS-based Timeline — avoids SVG circle distortion from preserveAspectRatio="none" */}
+        <div className="relative h-12 w-full mb-10">
+          {/* Base track */}
+          <div className="absolute top-1/2 left-0 right-0 h-px bg-white/10 -translate-y-1/2" />
+
+          {segments.map((segment, index) => {
+            const isActive = index === activeSegment;
+            const isPast = index < activeSegment;
+            const sConfig = STATUS_CONFIG[segment.status];
+            const pct = (index / (segments.length - 1)) * 100;
+
+            return (
+              <div
+                key={index}
+                className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 flex items-center justify-center transition-all duration-700"
+                style={{ left: `${pct}%` }}
+              >
+                {/* Glow ring for active */}
+                {isActive && (
+                  <div
+                    className="absolute w-8 h-8 rounded-full animate-pulse"
+                    style={{ backgroundColor: sConfig.trackColor, opacity: 0.15 }}
+                  />
+                )}
+                {/* Dot */}
+                <div
+                  className="rounded-full transition-all duration-500 bg-paper-50"
+                  style={{
+                    width: isActive ? 12 : 6,
+                    height: isActive ? 12 : 6,
+                    opacity: isActive ? 1 : isPast ? 0.5 : 0.2,
+                  }}
+                />
+              </div>
+            );
+          })}
+
+          {/* Filled track segment up to active */}
+          <div
+            className="absolute top-1/2 left-0 h-px -translate-y-1/2 transition-all duration-700"
+            style={{
+              width: `${(activeSegment / (segments.length - 1)) * 100}%`,
+              backgroundColor: 'rgba(255, 255, 255, 0.6)',
+              opacity: 0.6,
+            }}
+          />
         </div>
 
-        {/* Skills Evaluation */}
-        <div className="space-y-4">
-          {MOCK_FEEDBACK.skills.map((skill, index) => (
-            <div
-              key={index}
-              className={`bg-white/5 p-4 border-l-4 ${getEvaluationColor(skill.evaluation)}`}
-            >
-              {/* Skill name and evaluation status */}
-              <div className="mb-2">
-                <div className="font-medium text-white text-sm md:text-base">
-                  {skill.skill_name}
-                </div>
-                <div className="text-xs text-white/50 mt-1">
-                  {skill.evaluation}
+        {/* Content slides */}
+        <div className="h-52 relative">
+          {segments.map((segment, index) => {
+            const sConfig = STATUS_CONFIG[segment.status];
+            const isActive = index === activeSegment;
+            const isPast = index < activeSegment;
+
+            return (
+              <div
+                key={index}
+                className={`absolute inset-0 flex flex-col transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${isActive
+                    ? 'opacity-100 translate-y-0 scale-100'
+                    : isPast
+                      ? 'opacity-0 -translate-y-4 scale-95 pointer-events-none'
+                      : 'opacity-0 translate-y-4 scale-95 pointer-events-none'
+                  }`}
+              >
+                <div className={`border p-5 flex-1 flex flex-col justify-between ${sConfig.bgTint} ${sConfig.borderColor}`}>
+                  <div className="flex items-start justify-between gap-4">
+                    <h4 className="text-paper-50 text-xl md:text-2xl font-bold tracking-tight leading-tight">
+                      {segment.label}
+                    </h4>
+                    <span className={`text-xs font-bold tracking-widest uppercase whitespace-nowrap mt-0.5 ${sConfig.color}`}>
+                      {sConfig.label}
+                    </span>
+                  </div>
+                  <p className="text-ink-500 text-sm leading-relaxed mt-4">
+                    {segment.description}
+                  </p>
                 </div>
               </div>
-
-              {/* Feedback */}
-              <p className="text-white/60 text-xs md:text-sm leading-relaxed">
-                {skill.feedback}
-              </p>
-
-              {/* Improvement suggestion - only if present */}
-              {skill.improvement_suggestion && (
-                <div className="mt-3 pt-3 border-t border-white/10">
-                  <div className="flex gap-2 items-start">
-                    <div className="flex-1">
-                      <div className="text-white/80 font-medium text-xs md:text-sm mb-1">
-                        How to improve:
-                      </div>
-                      <p className="text-white/60 text-xs md:text-sm leading-relaxed">
-                        {skill.improvement_suggestion}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
-
-        {/* Scroll indicator at bottom */}
-        {!isScrolling && (
-          <div className="text-center pt-6 text-white/40 text-xs md:text-sm animate-pulse">
-            ↓ Scroll to see more ↓
-          </div>
-        )}
       </div>
     </div>
   );

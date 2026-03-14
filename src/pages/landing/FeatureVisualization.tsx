@@ -1,8 +1,8 @@
-import { DisciplineFilter } from '@/components/ui/DisciplineFilter';
 import { InstantAccessAnimation } from '@/components/ui/InstantAccessAnimation';
 import { FeedbackAnimation } from '@/components/ui/FeedbackAnimation';
 import { VideoCallAnimation } from '@/components/ui/VideoCallAnimation';
 import { SkillMapAnimation } from '@/components/ui/SkillMapAnimation';
+import { PrepAnimation } from '@/components/ui/PrepAnimation';
 
 type VisualizationType = 'feedback' | 'problems' | 'simulation' | 'instant' | 'skill-map';
 
@@ -16,7 +16,7 @@ export function FeatureVisualization({ type }: FeatureVisualizationProps) {
   }
 
   if (type === 'problems') {
-    return <DisciplineFilter />;
+    return <PrepAnimation />;
   }
 
   if (type === 'simulation') {
